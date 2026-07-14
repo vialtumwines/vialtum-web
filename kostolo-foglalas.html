@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Vialtum Pince Dunaföldvár</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Jost:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0a06;
+    --panel: #131107;
+    --panel-alt: #1a1709;
+    --line: #332c17;
+    --line-soft: #241f10;
+    --gold: #a9853f;
+    --gold-bright: #d8b876;
+    --oxblood: #4a1418;
+    --oxblood-bright: #7c2229;
+    --mark-red: #c23b3b;
+    --cream: #ece2cd;
+    --cream-dim: #8b8069;
+    --radius: 4px;
+    /* aliases kept for legacy references used elsewhere in this file */
+    --bg-panel: var(--panel);
+    --bg-card: var(--panel-alt);
+    --gold-dim: #7a6535;
+    --wine: var(--oxblood-bright);
+    --wine-bright: #9c2b30;
+    font-size: 16px;
+  }
+  *{box-sizing:border-box;}
+  html{ background: var(--bg); }
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(169,133,63,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(74,20,24,0.18), transparent 55%),
+      var(--bg);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 0 60px;
+    position: relative;
+  }
+  body::before{
+    content:"";
+    position: fixed; inset:0; pointer-events:none; z-index:1;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+  }
+  a{color:inherit;}
+  .wrap{max-width: 1080px; margin: 0 auto; padding: 0 24px; position:relative; z-index:2;}
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  /* HERO */
+  .hero{
+    padding: 90px 24px 56px;
+    text-align:center;
+    border-bottom: 1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(169,133,63,0.10), transparent 42%),
+      radial-gradient(circle at 85% 25%, rgba(74,20,24,0.22), transparent 48%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 22px;
+    display:flex; align-items:center; justify-content:center; gap:14px;
+  }
+  .eyebrow::before, .eyebrow::after{
+    content:""; display:block; width:32px; height:1px; background: var(--gold-dim);
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(2.4rem, 5.4vw, 4rem);
+    margin: 0 0 20px;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+  }
+  h1 em{
+    font-style: italic;
+    color: var(--gold-bright);
+    font-weight: 500;
+  }
+  .hero p{
+    max-width: 540px;
+    margin: 0 auto;
+    color: var(--cream-dim);
+    font-size: 1.02rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .hero-stats{
+    display:flex; gap:0; justify-content:center; margin-top:40px; flex-wrap:wrap;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  .stat{ text-align:center; padding: 0 32px; border-left: 1px solid var(--line); }
+  .stat:first-child{ border-left:none; }
+  .stat b{
+    display:block; font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:1.6rem; color: var(--gold-bright);
+    letter-spacing: -0.02em;
+  }
+  .stat span{ font-size:0.68rem; color:var(--cream-dim); text-transform:uppercase; letter-spacing:1.5px; font-family:'IBM Plex Mono', monospace; }
+  .hero-agenote{
+    margin-top:20px; display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.8px;
+    color: var(--cream-dim); text-transform:uppercase;
+  }
+  .hero-agenote svg{ width:15px; height:15px; color:var(--gold); flex-shrink:0; }
+  footer .legal-note{
+    max-width:560px; margin:14px auto 0; color:var(--cream-dim); opacity:0.85; line-height:1.6;
+  }
+  footer .contact-note{ max-width:520px; margin:0 auto 14px; line-height:1.6; }
+  .contact-links{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px 14px;
+    margin-bottom:6px;
+  }
+  .contact-links a{
+    color: var(--gold-bright); text-decoration:none;
+    border-bottom: 1px solid var(--gold-dim); padding-bottom:1px;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .contact-links a:hover{ border-color: var(--gold-bright); color:#fff; }
+  .contact-links .dot{ color: var(--line); }
+
+  /* EVENT GRID */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 48px;
+  }
+  .card{
+    background: var(--panel);
+    padding: 0;
+    position:relative;
+    overflow:hidden;
+    transition: background .2s ease;
+  }
+  .card:hover{ background: var(--panel-alt); }
+  .card.full{ opacity:0.5; }
+  .card-content{
+    position:relative; z-index:1;
+    padding: 34px 26px 24px;
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+    height:100%;
+  }
+  .card-poster{
+    position:absolute; inset:0; z-index:0;
+    background-size:cover; background-position:center;
+    opacity:0; transform: translateX(-8%);
+    transition: opacity .45s ease, transform .55s cubic-bezier(.22,.61,.36,1);
+  }
+  .card-poster::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,10,6,0.5) 0%, rgba(10,10,6,0.9) 100%);
+  }
+  .card:hover .card-poster{ opacity:1; transform:translateX(0); }
+  .card-desc{
+    color: var(--cream-dim); font-size: 0.85rem; line-height:1.55; margin: 0;
+    font-weight:300;
+  }
+  .read-more-btn{
+    background:none; border:none; padding:0; cursor:pointer;
+    color: var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
+    letter-spacing:0.5px; text-decoration:underline; text-underline-offset:2px;
+  }
+  .read-more-btn:hover{ color: var(--gold); }
+  .seal{
+    position:absolute; top:-1px; left:26px;
+    width:52px; height:60px;
+    background: linear-gradient(160deg, var(--gold-bright), var(--gold) 55%, #6e5527);
+    color: #191305;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.45);
+    clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+  }
+  .seal .d{ font-size:1.35rem; font-weight:600; line-height:1; }
+  .seal .m{ font-size:0.58rem; text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+  .card h3{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:1.28rem;
+    margin: 22px 0 0;
+    line-height:1.32;
+    letter-spacing: -0.005em;
+  }
+  .full-tag{
+    position:absolute; top:22px; right:-32px; transform: rotate(38deg);
+    background: var(--oxblood); color: var(--cream);
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem; letter-spacing:2px;
+    text-transform:uppercase; padding: 3px 36px;
+  }
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:0.85rem; color:var(--cream-dim);
+    margin-top:auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .price{ color: var(--gold-bright); font-weight:500; font-family:'IBM Plex Mono', monospace; font-size:0.82rem; }
+  .seats-bar{
+    height:2px; background:var(--line); overflow:hidden; margin-top:8px;
+  }
+  .seats-fill{ height:100%; background: var(--gold); transition: width .3s ease;}
+  .seats-label{ font-size:0.68rem; color:var(--cream-dim); margin-top:6px; font-family:'IBM Plex Mono', monospace; letter-spacing:0.5px;}
+  .btn{
+    border: 1px solid var(--gold);
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:0.7rem;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 13px 18px; border-radius: 2px;
+    background: transparent; color: var(--gold-bright);
+    transition: background .2s ease, color .2s ease;
+  }
+  .btn:hover{ background: var(--gold); color: #16130a; }
+  .btn:disabled{ border-color:var(--line); background:transparent; color:var(--cream-dim); cursor:not-allowed;}
+  .btn.secondary{
+    border: 1px solid var(--line); color: var(--cream-dim);
+  }
+  .btn.secondary:hover{ border-color: var(--gold-dim); color: var(--gold); background:transparent; }
+  .btn.ghost{
+    background:transparent; border:none; color:var(--cream-dim); font-weight:500; font-size:0.66rem; padding: 8px 10px;
+    text-decoration: underline; text-underline-offset:3px; letter-spacing:1px; text-transform:uppercase;
+  }
+
+
+  /* MODAL */
+  .overlay{
+    position:fixed; inset:0; background:rgba(5,4,2,0.82);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background: var(--panel);
+    border:1px solid var(--gold-dim);
+    border-radius: 2px;
+    max-width: 440px; width:100%;
+    padding: 32px;
+    max-height: 90vh; overflow-y:auto;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .modal h2{
+    font-family:'Fraunces',serif; font-weight:500; font-size:1.5rem; margin:0 0 4px;
+  }
+  .modal .sub{ color:var(--cream-dim); font-size:0.88rem; margin-bottom:20px; line-height:1.5;}
+  .seats-pct-bar{ height:2px; background:var(--line); margin: -10px 0 6px; overflow:hidden; }
+  .seats-pct-fill{ height:100%; background: var(--gold); }
+  .seats-pct-label{ font-size:0.68rem; color:var(--cream-dim); font-family:'IBM Plex Mono', monospace; letter-spacing:0.5px; margin-bottom:16px; }
+  label{ display:block; font-size:0.68rem; color:var(--gold); margin-bottom:8px; margin-top:16px; text-transform:uppercase; letter-spacing:1.5px; font-family:'IBM Plex Mono', monospace;}
+  input, select{
+    width:100%; padding:12px 14px; border-radius:2px;
+    border:1px solid var(--line); background:#0d0c07; color:var(--cream);
+    font-family:'Jost',sans-serif; font-size:0.95rem;
+  }
+  input:focus, select:focus{ outline:none; border-color: var(--gold); }
+  .modal-actions{ display:flex; gap:10px; margin-top:26px; }
+  .close-x{
+    position:absolute; top:18px; right:20px; background:none; border:none; color:var(--cream-dim);
+    font-size:1.3rem; cursor:pointer; line-height:1; font-family:'Jost',sans-serif;
+  }
+  .close-x:hover{ color: var(--gold); }
+  .modal{ position:relative; }
+  .success-box{
+    text-align:center; padding: 10px 0 0;
+  }
+  .success-box .check{ font-size:2rem; margin-bottom:14px; color: var(--gold); }
+  .success-box p{ color:var(--cream-dim); font-size:0.9rem; line-height:1.6;}
+
+  .pkg-tile-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:2px; margin-top:16px;
+  }
+  .pkg-tile{
+    border:none; cursor:pointer; text-align:left;
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+    padding:18px; min-height:150px;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .pkg-tile:hover{ transform: translateY(-2px); filter: brightness(1.08); }
+  @media (max-width: 480px){
+    .pkg-tile-grid{ grid-template-columns: 1fr; }
+  }
+
+  footer{
+    text-align:center; padding: 50px 24px 0; color:var(--cream-dim); font-size:0.78rem;
+    font-family:'IBM Plex Mono', monospace; letter-spacing:0.3px;
+  }
+  .social-row{
+    display:flex; gap:16px; justify-content:center; margin-bottom:26px;
+  }
+  .social-icon{
+    width:42px; height:42px; border-radius:50%;
+    border: 1px solid var(--gold-dim);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--gold);
+    transition: background .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .social-icon svg{ width:17px; height:17px; }
+  .social-icon:hover{
+    background: var(--gold); color: #16130a; border-color: var(--gold);
+    transform: translateY(-2px);
+  }
+
+  /* ADMIN */
+  .admin-panel{
+    background: var(--panel); border:1px solid var(--line); border-radius: 2px;
+    padding:28px; margin-top:34px;
+  }
+  .admin-panel h3{ font-family:'Fraunces',serif; font-weight:500; margin-top:0; color: var(--gold-bright); }
+  .admin-tabs{
+    display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+    border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:24px;
+  }
+  .admin-tab-btn{
+    background:transparent; border:1px solid var(--line); color:var(--cream-dim);
+    padding:9px 16px; cursor:pointer; border-radius:2px;
+    font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:0.7rem;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .admin-tab-btn:hover{ border-color: var(--gold-dim); color: var(--gold); }
+  .admin-tab-btn.active{ background: var(--gold); color:#16130a; border-color:var(--gold); }
+  table{ width:100%; border-collapse:collapse; font-size:0.83rem; margin-top:12px;}
+  th, td{ text-align:left; padding:10px 6px; border-bottom:1px solid var(--line); }
+  th{ color:var(--gold); font-weight:500; text-transform:uppercase; font-size:0.66rem; letter-spacing:1px; font-family:'IBM Plex Mono', monospace;}
+  .row-actions{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
+  .loading{ text-align:center; padding:70px 0; color:var(--cream-dim); font-family:'IBM Plex Mono', monospace; font-size:0.85rem; letter-spacing:0.5px;}
+
+  /* VIEW TOGGLE */
+  .view-toggle{ display:flex; gap:0; justify-content:center; margin: 44px 0 0; border: 1px solid var(--line); width: fit-content; margin-left:auto; margin-right:auto; }
+  .tab{
+    background:transparent; border:none; color:var(--cream-dim);
+    padding:11px 26px; cursor:pointer;
+    font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:0.72rem;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    transition: background .15s ease, color .15s ease;
+    border-right: 1px solid var(--line);
+  }
+  .tab:last-child{ border-right:none; }
+  .tab.active{ background: var(--gold); color: #16130a; }
+  .tab:hover:not(.active){ color: var(--gold); }
+
+  /* CALENDAR */
+  .cal-header{
+    display:flex; align-items:center; justify-content:center; gap:26px; margin: 34px 0 22px;
+  }
+  .cal-month-label{
+    font-family:'IBM Plex Mono', monospace; font-size:1.1rem; letter-spacing:2px; text-transform:uppercase; min-width:250px; text-align:center; color:var(--gold-bright);
+  }
+  .cal-nav-btn{
+    background:transparent; border:1px solid var(--line); color:var(--cream);
+    width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:1.2rem;
+    display:flex; align-items:center; justify-content:center;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .cal-nav-btn:hover{ border-color: var(--gold); color: var(--gold); }
+  .cal-weekdays{
+    display:grid; grid-template-columns:repeat(7,1fr); text-align:center;
+    font-size:0.68rem; color:var(--gold-dim); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .cal-viewport{ overflow:hidden; padding: 2px; }
+  .cal-grid{
+    display:grid; grid-template-columns:repeat(7,1fr); gap:1px;
+    background: var(--line); border: 1px solid var(--line);
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .cal-day{
+    background:var(--panel);
+    min-height:88px; padding:0;
+    position:relative; overflow:hidden;
+  }
+  .cal-day-content{
+    position:relative; z-index:1; height:100%;
+    padding:9px; display:flex; flex-direction:column; gap:6px;
+  }
+  .day-poster{
+    position:absolute; inset:0; z-index:0;
+    background-size:cover; background-position:center;
+    opacity:0; transform: translateX(-8%);
+    transition: opacity .4s ease, transform .5s cubic-bezier(.22,.61,.36,1);
+  }
+  .day-poster::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,10,6,0.4) 0%, rgba(10,10,6,0.85) 100%);
+  }
+  .cal-day.other-month{ opacity:0.22; }
+  .cal-day.today .daynum{ color: var(--gold-bright); font-weight:600; }
+  .cal-day.has-event{ background: var(--panel-alt); cursor:pointer; transition: background .15s ease; }
+  .cal-day.has-event:hover{ background: #241f10; }
+  .cal-day.has-event:hover .day-poster{ opacity:1; transform:translateX(0); }
+  .cal-day.has-event .daynum{ color: var(--mark-red); font-weight:700; }
+  .cal-day.empty-bookable{ cursor:pointer; transition: background .15s ease; }
+  .cal-day.empty-bookable:hover{ background: var(--panel-alt); }
+  .cal-day.empty-bookable:hover .daynum{ color: var(--gold-bright); }
+  .cal-day.has-private{ background: rgba(169,133,63,0.1); }
+  .cal-day.has-private .daynum{ color: var(--gold-bright); font-weight:700; }
+  .cal-day.day-full .daynum{ color: var(--mark-red); }
+  .daynum{ font-size:0.8rem; color:var(--cream-dim); font-family:'IBM Plex Mono', monospace; }
+  .event-dot-wrap{ display:flex; flex-direction:column; gap:3px; margin-top:auto; }
+  .event-chip{
+    background: transparent; color: var(--mark-red); font-size:0.64rem; padding:3px 5px;
+    border: 1px solid rgba(194,59,59,0.45); line-height:1.25;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .event-chip.private-chip{ color: var(--gold-bright); border-color: rgba(216,184,118,0.45); }
+  .more-chip{ font-size:0.6rem; color: var(--gold); font-family:'IBM Plex Mono', monospace; }
+  @media (max-width: 560px){
+    .cal-day{ min-height:64px; }
+    .cal-day-content{ padding:5px; }
+    .event-chip{ font-size:0.56rem; padding:2px 4px; }
+    .cal-month-label{ font-size:0.85rem; min-width:0; letter-spacing:1px; }
+  }
+
+  /* SITE NAV */
+  .site-nav{
+    display:flex; gap:28px; justify-content:center; flex-wrap:wrap;
+    padding: 18px 24px; border-bottom: 1px solid var(--line);
+  }
+  .site-nav a{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase;
+    color: var(--cream-dim); text-decoration:none; transition: color .2s ease;
+  }
+  .site-nav a:hover{ color: var(--gold-bright); }
+
+  /* CONTENT SECTIONS (Rólunk / Vélemények / Galéria / Helyszín) */
+  .section{
+    padding: 64px 24px 10px;
+    border-top: 1px solid var(--line);
+    margin-top: 56px;
+    scroll-margin-top: 24px;
+  }
+  .section h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size: clamp(1.7rem, 3.6vw, 2.4rem);
+    margin: 0 0 26px; letter-spacing:-0.01em;
+  }
+  .about-text{
+    max-width: 640px; color: var(--cream-dim); font-size:1rem; line-height:1.8; font-weight:300; white-space:pre-line;
+  }
+  .about-layout{
+    display:grid; grid-template-columns: minmax(0,340px) 1fr; gap:44px; align-items:start;
+  }
+  .about-layout.no-image{ grid-template-columns: 1fr; }
+  .about-photo{
+    width:100%; aspect-ratio: 4/5; object-fit:cover; border:1px solid var(--line);
+    filter:saturate(0.9) brightness(0.92); display:block;
+  }
+  @media (max-width: 720px){
+    .about-layout{ grid-template-columns: 1fr; }
+  }
+  .empty-note{ color:var(--cream-dim); font-size:0.88rem; font-family:'IBM Plex Mono', monospace; padding: 16px 0 30px; }
+
+  /* TESTIMONIALS */
+  .testimonial-grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:1px;
+    background: var(--line); border:1px solid var(--line); margin-bottom: 40px;
+  }
+  .testimonial-card{
+    background: var(--panel); padding: 28px 26px; display:flex; flex-direction:column; gap:12px;
+  }
+  .quote-mark{ font-family:'Fraunces', serif; font-size:2.4rem; color:var(--gold); line-height:1; }
+  .testimonial-card p{ color:var(--cream-dim); font-size:0.92rem; line-height:1.65; font-weight:300; font-style:italic; margin:0; }
+  .testimonial-author{ font-family:'IBM Plex Mono', monospace; font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--gold); }
+
+  /* GALLERY */
+  .gallery-grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:2px; margin-bottom: 40px;
+  }
+  .gallery-item{ position:relative; overflow:hidden; aspect-ratio: 4/3; background:var(--panel-alt); }
+  .gallery-item img{ width:100%; height:100%; object-fit:cover; filter:saturate(0.9) brightness(0.9); transition: transform .3s ease, filter .3s ease; display:block; }
+  .gallery-item:hover img{ transform: scale(1.05); filter:saturate(1) brightness(1); }
+  .gallery-caption{
+    position:absolute; left:0; right:0; bottom:0; padding:10px 12px;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+    font-size:0.72rem; color:var(--cream); font-family:'IBM Plex Mono', monospace; letter-spacing:0.3px;
+  }
+
+  /* MAP */
+  .map-frame{
+    border:1px solid var(--line); aspect-ratio: 16/7; overflow:hidden; margin-bottom: 40px;
+  }
+  .map-frame iframe{ width:100%; height:100%; border:0; filter: grayscale(0.3) brightness(0.92) contrast(1.05); }
+
+  /* AGE GATE */
+  .vp-entry{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(5,4,2,0.94);
+    backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:1; transition: opacity .35s ease;
+  }
+  .vp-entry.closing{ opacity:0; pointer-events:none; }
+  .vp-entry[hidden]{ display:none; }
+  .vp-entry-modal{
+    background: var(--panel);
+    border:1px solid var(--gold-dim);
+    max-width: 420px; width:100%;
+    padding: 44px 36px 36px;
+    text-align:center;
+    position:relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .vp-entry-modal::before{
+    content:"";
+    position:absolute; inset:10px;
+    border:1px solid var(--line-soft);
+    pointer-events:none;
+  }
+  .vp-entry-icon{ color: var(--gold); margin-bottom:18px; }
+  .vp-entry-icon svg{ width:34px; height:34px; }
+  .vp-entry .eyebrow{ margin-bottom:16px; }
+  .vp-entry-modal h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.7rem; margin:0 0 14px; line-height:1.2;
+  }
+  .vp-entry-modal h2 em{ font-style:italic; color:var(--gold-bright); }
+  .vp-entry-modal p{ color:var(--cream-dim); font-size:0.92rem; line-height:1.65; font-weight:300; margin:0 0 28px; }
+  .vp-entry-actions{ display:flex; flex-direction:column; gap:10px; }
+  .vp-entry-actions .btn{ width:100%; }
+  .vp-entry-decline{ display:none; }
+  .vp-entry-decline p{ margin-bottom:20px; }
+  .vp-entry-modal.declined .vp-entry-question{ display:none; }
+  .vp-entry-modal.declined .vp-entry-decline{ display:block; }
+  .vp-entry-back{
+    background:none; border:none; color:var(--cream-dim); font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem; letter-spacing:1px; text-transform:uppercase; text-decoration:underline;
+    text-underline-offset:3px; cursor:pointer; padding:6px;
+  }
+  .vp-entry-back:hover{ color:var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Borkóstolók és rendezvények</div>
+    <h1>Vialtum Pince <em>Dunaföldvár</em></h1>
+    <p>Borkóstolók, borvacsorák és egyedi rendezvények egy hangulatos dunaföldvári pincében. Válaszd ki a hozzád illő estét, foglalj helyet, és tarts velünk a pincében.</p>
+    <div class="hero-stats">
+      <div class="stat"><b id="stat-events">–</b><span>Esemény</span></div>
+      <div class="stat"><b>40</b><span>Fő kapacitás</span></div>
+    </div>
+    <div class="hero-agenote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 3C6.3 3 5.1 4.9 5.4 7.3C5.7 10.6 7.8 13.4 12 13.4C16.2 13.4 18.3 10.6 18.6 7.3C18.9 4.9 17.7 3 16 3"/><path d="M12 13.4V19.5"/><path d="M8.4 20H15.6"/></svg>
+      Alkoholtartalmú kóstolók — kizárólag 18 éven felülieknek
+    </div>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <a href="#kostolok">Kóstolók</a>
+  <a href="#rolunk">Rólunk</a>
+  <a href="#velemenyek">Rólunk mondták</a>
+  <a href="#galeria">Korábbi eseményeink</a>
+  <a href="#helyszin">Helyszín</a>
+</nav>
+
+<div class="wrap">
+  <div class="view-toggle">
+    <button class="tab active" id="tab-grid">Kártyanézet</button>
+    <button class="tab" id="tab-calendar">Naptárnézet</button>
+  </div>
+</div>
+
+<div class="wrap" id="kostolok">
+  <div id="grid" class="grid">
+    <div class="loading">Kóstolók betöltése…</div>
+  </div>
+
+  <div id="calendar-view" style="display:none;">
+    <div class="cal-header">
+      <button class="cal-nav-btn" id="cal-prev">‹</button>
+      <div class="cal-month-label" id="cal-month-label">–</div>
+      <button class="cal-nav-btn" id="cal-next">›</button>
+    </div>
+    <div class="cal-weekdays">
+      <div>H</div><div>K</div><div>Sze</div><div>Cs</div><div>P</div><div>Szo</div><div>V</div>
+    </div>
+    <div class="cal-viewport">
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:10px;">
+    <button class="btn ghost" id="admin-toggle">Admin belépés</button>
+  </div>
+  <div id="admin-panel"></div>
+</div>
+
+<div class="wrap section" id="rolunk">
+  <div class="eyebrow">Vialtum Pince</div>
+  <h2>Rólunk</h2>
+  <div class="about-layout no-image" id="about-layout">
+    <img class="about-photo" id="about-photo" style="display:none;" alt="Vialtum Pince">
+    <p class="about-text" id="about-text"></p>
+  </div>
+</div>
+
+<div class="wrap section" id="velemenyek">
+  <div class="eyebrow">Vendégeink mondták</div>
+  <h2>Rólunk mondták</h2>
+  <div class="testimonial-grid" id="testimonials-grid">
+    <div class="loading">Vélemények betöltése…</div>
+  </div>
+</div>
+
+<div class="wrap section" id="galeria">
+  <div class="eyebrow">Pillanatképek</div>
+  <h2>Korábbi eseményeink</h2>
+  <div class="gallery-grid" id="gallery-grid">
+    <div class="loading">Galéria betöltése…</div>
+  </div>
+</div>
+
+<div class="wrap section" id="helyszin">
+  <div class="eyebrow">Merre találsz minket</div>
+  <h2>Helyszín</h2>
+  <div class="map-frame">
+    <iframe id="map-iframe" src="https://www.google.com/maps?q=VIALTUM+PINCE,+Dunaf%C3%B6ldv%C3%A1r&z=17&output=embed" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+  <div style="text-align:center; margin-bottom:40px;">
+    <a class="btn secondary" style="text-decoration:none; display:inline-block;" href="https://www.google.com/maps/place/VIALTUM+PINCE/@46.814408,18.9194054,17z/data=!3m1!4b1!4m6!3m5!1s0x47423f00458ed37f:0x688c56fc0382d096!8m2!3d46.814408!4d18.9219803!16s%2Fg%2F11ynlhp0fh?authuser=0&entry=ttu" target="_blank" rel="noopener">Útvonaltervezés megnyitása</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="social-row">
+      <a href="https://www.facebook.com/profile.php?id=61582420536751" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13.6 21v-8.2h2.75l.41-3.19h-3.16V7.53c0-.92.26-1.55 1.58-1.55h1.68V3.13C16.57 3.06 15.54 3 14.33 3c-2.53 0-4.26 1.54-4.26 4.37v2.24H7.31v3.19h2.76V21h3.53Z" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.instagram.com/vialtumwines" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.4"/><circle cx="17.1" cy="6.9" r="1.05" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@vialtumwines" target="_blank" rel="noopener" class="social-icon" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15.4 3h-3v11.6a2.9 2.9 0 1 1-2.05-2.77v-3.05a5.95 5.95 0 1 0 5.05 5.88V9.63a7.1 7.1 0 0 0 3.9 1.16V7.72a4.12 4.12 0 0 1-3.9-4.03V3Z" fill="currentColor"/></svg>
+      </a>
+    </div>
+    <div class="contact-note">A szervezők igyekeznek egy napon belül felvenni veled a kapcsolatot. Kérdés, kérés esetén keresd őket a megadott elérhetőségek egyikén:</div>
+    <div class="contact-links">
+      <a href="mailto:vialtumwines@gmail.com">vialtumwines@gmail.com</a>
+      <span class="dot">·</span>
+      <a href="tel:+36309718911">Gallai Adrián — +36 30 971 8911</a>
+      <span class="dot">·</span>
+      <a href="tel:+36302048133">Gallai József — +36 30 204 8133</a>
+    </div>
+    <div class="legal-note">A weboldalon megjelenő tartalom alkoholtartalmú italok bemutatását és kóstolóra történő foglalását szolgálja, ezért az kizárólag 18. életévüket betöltött személyeknek szól. Kérjük, kóstolóinkon csak felnőttként vegyél részt, és fogyassz felelősségteljesen.</div>
+    <div class="legal-note">Rendezvényeinken kép- és hangfelvétel készülhet, amelyeket a Vialtum Pince marketing- és kommunikációs célból (közösségi média, weboldal, egyéb promóciós anyagok) időbeli korlátozás nélkül felhasználhat. Rendezvényeinken való részvétellel a vendégek ezt tudomásul veszik. Amennyiben nem szeretnél a felvételeken szerepelni, kérjük, jelezd ezt a helyszínen a szervezőknek.</div>
+  </div>
+</footer>
+
+<!-- Age Gate -->
+<div class="vp-entry" id="vp-entry" hidden>
+  <div class="vp-entry-modal">
+    <div class="vp-entry-question">
+      <div class="vp-entry-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M8 3C6.3 3 5.1 4.9 5.4 7.3C5.7 10.6 7.8 13.4 12 13.4C16.2 13.4 18.3 10.6 18.6 7.3C18.9 4.9 17.7 3 16 3"/>
+          <path d="M12 13.4V19.5"/><path d="M8.4 20H15.6"/>
+        </svg>
+      </div>
+      <div class="eyebrow">Kóstoló-foglalás</div>
+      <h2>Elmúltál már <em>18 éves</em>?</h2>
+      <p>Ez az oldal borkóstolók foglalására szolgál, alkoholtartalmú termékek bemutatásával. A belépéshez kérjük, erősítsd meg, hogy elmúltál 18 éves.</p>
+      <div class="vp-entry-actions">
+        <button type="button" class="btn" id="vp-entry-yes">Igen, elmúltam 18 éves</button>
+        <button type="button" class="btn secondary" id="vp-entry-no">Nem múltam el 18 éves</button>
+      </div>
+    </div>
+    <div class="vp-entry-decline">
+      <div class="eyebrow">Sajnáljuk</div>
+      <h2>Ez a tartalom <em>18 éven felülieknek</em> szól</h2>
+      <p>A Vialtum Pince borkóstolóira csak nagykorúak jelentkezhetnek. Kérjük, gyere vissza, ha elmúltál 18 éves.</p>
+      <button type="button" class="vp-entry-back" id="vp-entry-back">Vissza / tévedésből kattintottam</button>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+/* ---------- Kép-újrapróbálkozás (a Google Drive-os képszolgáltatás időnként átmenetileg 429/503-at ad forgalmi csúcsban) ---------- */
+function handleImgError(el){
+  const tries = (parseInt(el.dataset.retry || '0', 10)) + 1;
+  el.dataset.retry = tries;
+  if(tries > 6) return;
+  const base = el.dataset.baseSrc || el.src.split('?')[0];
+  el.dataset.baseSrc = base;
+  setTimeout(() => { el.src = base + '?r=' + Date.now(); }, Math.min(tries * 900, 3500));
+}
+function setPosterWithRetry(el, url, attempt){
+  attempt = attempt || 0;
+  const probe = new Image();
+  probe.onload = () => { el.style.backgroundImage = `url('${url.replace(/'/g,"\\'")}')`; };
+  probe.onerror = () => {
+    if(attempt < 6) setTimeout(() => setPosterWithRetry(el, url, attempt + 1), Math.min((attempt + 1) * 900, 3500));
+  };
+  probe.src = attempt ? url + (url.includes('?') ? '&' : '?') + 'r=' + Date.now() : url;
+}
+function applyPosters(container){
+  container.querySelectorAll('[data-poster]').forEach((el, i) => {
+    setTimeout(() => setPosterWithRetry(el, el.dataset.poster), i * 180);
+  });
+}
+
+/* ---------- Életkor-ellenőrző felugró ablak (18+) ---------- */
+const VP_ENTRY_KEY = 'kostolo-agegate-ok';
+(function initEntryGate(){
+  const gate = document.getElementById('vp-entry');
+  if(localStorage.getItem(VP_ENTRY_KEY) === '1') return;
+  gate.hidden = false;
+  const modal = gate.querySelector('.vp-entry-modal');
+  document.getElementById('vp-entry-yes').addEventListener('click', () => {
+    localStorage.setItem(VP_ENTRY_KEY, '1');
+    gate.classList.add('closing');
+    setTimeout(() => { gate.hidden = true; }, 350);
+  });
+  document.getElementById('vp-entry-no').addEventListener('click', () => {
+    modal.classList.add('declined');
+  });
+  document.getElementById('vp-entry-back').addEventListener('click', () => {
+    modal.classList.remove('declined');
+  });
+})();
+
+const DEFAULT_EVENTS = [
+  {id:'2026-09-11', date:'2026-09-11', title:'Vulkanikus borok – Terroir kóstoló', price:15000, capacity:45},
+  {id:'2026-09-19', date:'2026-09-19', title:'Vulkanikus fehérborok', price:15000, capacity:45},
+  {id:'2026-10-09', date:'2026-10-09', title:'Itália – Borkörkép', price:20000, capacity:45},
+  {id:'2026-10-24', date:'2026-10-24', title:'Champagne vs magyar pezsgők – az összehasonlítás', price:25000, capacity:45},
+  {id:'2026-11-07', date:'2026-11-07', title:'Vialtum Pince – portfólió kóstoló', price:15000, capacity:45},
+  {id:'2026-11-20', date:'2026-11-20', title:'Kvízest', price:15000, capacity:45},
+  {id:'2026-11-28', date:'2026-11-28', title:'Pósta Borház × Villányi Franc – prémium csokoládé masterclass', price:15000, capacity:45},
+  {id:'2026-12-12', date:'2026-12-12', title:'Tokaj varázslatos arcai', price:20000, capacity:45},
+  {id:'2026-12-18', date:'2026-12-18', title:'Párlat és pálinka kóstoló', price:20000, capacity:45},
+  {id:'2026-12-29', date:'2026-12-29', title:'Előszilveszteri buli', price:15000, capacity:45},
+];
+
+/* ---------- VALÓDI, INTERNETES TÁROLÁS (Google Sheets + Apps Script) ---------- */
+const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbzdPAZIq3GRCsQIAxnTF1qWYRhLijNftM0rRphKZF-u1I6pDKZBvzo3T0f3SPR-RPD-ng/exec";
+
+const sheetsStorage = {
+  async get(key){
+    try{
+      const res = await fetch(`${SHEETS_API_URL}?key=${encodeURIComponent(key)}`);
+      const data = await res.json();
+      if(!data || data.value === null || data.value === undefined) return null;
+      return { key, value: data.value };
+    }catch(e){
+      console.error('Sheets get hiba:', e);
+      throw e;
+    }
+  },
+  async set(key, value){
+    try{
+      const res = await fetch(SHEETS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ key, value })
+      });
+      const data = await res.json();
+      if(!data || !data.ok) return null;
+      return { key, value };
+    }catch(e){
+      console.error('Sheets set hiba:', e);
+      return null;
+    }
+  }
+};
+
+let EVENTS = [];
+
+async function loadEvents(){
+  try{
+    const res = await sheetsStorage.get('kostolo-esemenyek');
+    if(res && res.value){
+      EVENTS = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve, megyünk az alapértelmezettel */ }
+  EVENTS = DEFAULT_EVENTS;
+  await saveEvents();
+}
+
+async function saveEvents(){
+  try{
+    const res = await sheetsStorage.set('kostolo-esemenyek', JSON.stringify(EVENTS));
+    return !!res;
+  }catch(e){
+    console.error('Esemény mentési hiba:', e);
+    return false;
+  }
+}
+
+/* ---------- EGYÉNI CSOMAGOK (üres napokra) ---------- */
+const DEFAULT_PACKAGES = [
+  {id:'p1', title:'Érdeklődő csomag (3+1 tétel)', description:'Bevezető kóstolónk tökéletes betekintést nyújt pincénk világába, ahol a kész borok mellett egy izgalmas tartály- vagy hordómintába is belekóstolhat. Ideális választás, ha egy nap alatt több helyszínt is meglátogatna. A tételek mellé friss pogácsát, ásványvizet és szódát kínálunk.', price:4500, minGroup:1},
+  {id:'p2', title:'Ínyenc csomag (5+1 tétel)', description:'Válogatott tételeinket a kóstoló társaság igényeire szabjuk. A borsort kész borainkból és a pincében érlelődő különleges hordómintákból állítjuk össze. Ideális azoknak, akik szeretnének mélyebben elmerülni az ízekben, és egy tartalmasabb gasztronómiai élményre vágynak. A borok mellé friss pogácsát, ásványvizet és szódát biztosítunk.', price:5900, minGroup:1},
+  {id:'p3', title:'Kíváncsi csomag (7+1 tétel)', description:'Prémium válogatás haladó borkedvelőknek, a társaság igényeire szabva. A kóstoló során a teljes szortimentet áttekintjük a palackos tételektől egészen a hordók mélyén fejlődő, jövőbeli nagy borokig. Ideális választás azoknak, akik átfogó, komplex képet szeretnének kapni pincénk munkásságáról. A kóstolót friss pogácsával, ásványvízzel és szódával kísérjük.', price:7500, minGroup:1},
+  {id:'p4', title:'Vakkóstoló (10 tétel)', description:'A tiszta érzékek és a szakmaiság találkozása. A borok párban érkeznek, címke és előítéletek nélkül. Ezt a programot kifejezetten haladóknak és szakmai érdeklődőknek ajánljuk, ahol a borászati ismeret előny, a fókusz pedig a színtiszta, elfogulatlan analitikán van.', price:9900, minGroup:8},
+  {id:'p5', title:'Freestyle kóstoló', description:'Engedjétek el a kormányt, és adjátok át nekünk a stafétabotot! Ezen a kóstolón teljes a bizalom: a borsort mi állítjuk össze a Vialtum Pince legizgalmasabb rejtett kincseiből és a nagyvilág ikonikus tételeiből. Nektek csak élveznetek kell a meglepetést és az utazást.', price:14900, minGroup:8},
+  {id:'p6', title:'Exkluzív magyar borok kóstolója (10+1 tétel)', description:'Egy igazi rangadó a poharakban! A Vialtum Pince legszebb tételei csapnak össze a hazai élvonal legkiválóbb borászataival – teljesen a társaság ízlésére szabva. Hogy a játék se maradjon el, 4 tételt teljesen vakon szervírozunk. Készen álltok a kihívásra?', price:16900, minGroup:8},
+];
+let PACKAGES = [];
+
+async function loadPackages(){
+  try{
+    const res = await sheetsStorage.get('kostolo-csomagok');
+    if(res && res.value){
+      PACKAGES = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve, megyünk az alapértelmezettel */ }
+  PACKAGES = DEFAULT_PACKAGES;
+  await savePackages();
+}
+
+async function savePackages(){
+  try{
+    const res = await sheetsStorage.set('kostolo-csomagok', JSON.stringify(PACKAGES));
+    return !!res;
+  }catch(e){
+    console.error('Csomag mentési hiba:', e);
+    return false;
+  }
+}
+
+/* ---------- KÖZÖS EXTRA-LISTA (minden egyéni csomagnál ugyanaz választható) ---------- */
+const DEFAULT_EXTRAS = [];
+let EXTRAS = [];
+
+async function loadExtras(){
+  try{
+    const res = await sheetsStorage.get('kostolo-extrak');
+    if(res && res.value){
+      EXTRAS = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve */ }
+  EXTRAS = DEFAULT_EXTRAS;
+  await saveExtras();
+}
+
+async function saveExtras(){
+  try{
+    const res = await sheetsStorage.set('kostolo-extrak', JSON.stringify(EXTRAS));
+    return !!res;
+  }catch(e){
+    console.error('Extra mentési hiba:', e);
+    return false;
+  }
+}
+
+/* ---------- EGYÉNI CSOMAGOK IDŐSÁVJA (üres napos foglalásoknál választható időpontok) ---------- */
+const DEFAULT_PRIVATE_HOURS = { start: '10:00', end: '20:00' };
+let PRIVATE_HOURS = { ...DEFAULT_PRIVATE_HOURS };
+
+async function loadPrivateHours(){
+  try{
+    const res = await sheetsStorage.get('kostolo-idosavok');
+    if(res && res.value){
+      PRIVATE_HOURS = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve */ }
+  PRIVATE_HOURS = { ...DEFAULT_PRIVATE_HOURS };
+  await savePrivateHours();
+}
+
+async function savePrivateHours(){
+  try{
+    const res = await sheetsStorage.set('kostolo-idosavok', JSON.stringify(PRIVATE_HOURS));
+    return !!res;
+  }catch(e){
+    console.error('Idősáv mentési hiba:', e);
+    return false;
+  }
+}
+
+function generateTimeSlots(){
+  const [startH] = PRIVATE_HOURS.start.split(':').map(Number);
+  const [endH] = PRIVATE_HOURS.end.split(':').map(Number);
+  const slots = [];
+  for(let h = startH; h <= endH; h++){
+    slots.push(String(h).padStart(2,'0') + ':00');
+  }
+  return slots;
+}
+
+function isPrivateBooking(b){
+  return !!(b.isPrivate || (b.eventId && b.eventId.startsWith('custom-')));
+}
+
+function takenSlotsForDate(dateISO){
+  return bookings.filter(b => isPrivateBooking(b) && b.eventDate === dateISO).map(b => b.idopont).filter(Boolean);
+}
+
+/* ---------- RÓLUNK (bemutatkozó szöveg) ---------- */
+const DEFAULT_ABOUT = "A Mély út pincéi között, Dunaföldváron új élet kezdődött: egy apa és fia közös álma bontakozik ki palackokká, kóstolóestékké és közösségi élménnyé. Gallai József és fia, Adrián nem csupán bort készítenek — találkozási pontot teremtettek a település borszerető közönségének.\n\nJózsef hozza a bevált, jól bejáratott eszméket, Adrián pedig az innovációt és a lendületet — így egészítjük ki egymást. Minden döntést közösen hozunk, olykor hosszú, de mindig építő viták árán, legyen szó borkészítésről vagy egy-egy rendezvény megszervezéséről. A közös cél, valamint a nézetek és a generációs különbségek ütköztetése szükséges és egészséges része a munkánknak.\n\nTörténetünk 2006-ban, egy pince megvásárlásával indult, majd 2022-ben, a felújítással és Adrián csatlakozásával kapott új lendületet. 2025-ben mutattuk be első, hivatalosan forgalomba hozott borainkat: Furmintot, Generosát, Kékfrankost, Merlot-t és Cabernet Sauvignont — a szőlőt megbízható partnereinktől, az ország több pontjáról válogatjuk.\n\nA Vialtum név is egyfajta játék: a Mély út latin megfelelőjéből, az „Alta via” kifejezésből született, betűi felcserélésével.\n\nCélunk egy borszerető és borértő közösség kialakítása és kiszolgálása — borainkon és rendezvényeinken keresztül, a tőlünk telhető legjobb módon. Ezért törekszünk arra, hogy időről időre megújuljunk: várható tőlünk pezsgőkóstoló, egy-egy szőlőfajtára — például Furmintra vagy Rizlingre — kihegyezett est, és adott borvidék bemutatása is. Nyártól nagyobb figyelmet szentelünk nyitott pincés estjeinknek is, amikor egy pohár bor vagy fröccs társaságában, kötetlenül beszélgetve élvezhetjük együtt a lemenő nap sugarait.\n\nPincénk különleges helyszín is egyben: 40 fő kényelmes befogadására alkalmas, hangulatos környezet, külön férfi és női mosdóval — ideális céges rendezvényekhez, születésnapokhoz, ballagásokhoz vagy privát borkóstolókhoz. Igény esetén jakuzzi, infraszauna és sószoba is a vendégeink rendelkezésére áll.\n\nHa egyedi, hangulatos helyszínt keresel — vagy csak egy jó pohár borra vágysz jó társaságban —, keress minket bátran.";
+let ABOUT_TEXT = '';
+
+async function loadAbout(){
+  try{
+    const res = await sheetsStorage.get('kostolo-rolunk');
+    if(res && res.value){
+      ABOUT_TEXT = res.value;
+      return;
+    }
+  }catch(e){ /* nincs még mentve, megyünk az alapértelmezettel */ }
+  ABOUT_TEXT = DEFAULT_ABOUT;
+  await saveAbout();
+}
+
+async function saveAbout(){
+  try{
+    const res = await sheetsStorage.set('kostolo-rolunk', ABOUT_TEXT);
+    return !!res;
+  }catch(e){
+    console.error('Rólunk szöveg mentési hiba:', e);
+    return false;
+  }
+}
+
+let ABOUT_IMAGE_URL = '';
+
+async function loadAboutImage(){
+  try{
+    const res = await sheetsStorage.get('kostolo-rolunk-kep');
+    if(res && res.value){
+      ABOUT_IMAGE_URL = res.value;
+      return;
+    }
+  }catch(e){ /* nincs még mentve */ }
+  ABOUT_IMAGE_URL = '';
+}
+
+async function saveAboutImage(){
+  try{
+    const res = await sheetsStorage.set('kostolo-rolunk-kep', ABOUT_IMAGE_URL);
+    return !!res;
+  }catch(e){
+    console.error('Rólunk kép mentési hiba:', e);
+    return false;
+  }
+}
+
+/* ---------- RÓLUNK MONDTÁK (vélemények) ---------- */
+const DEFAULT_TESTIMONIALS = [];
+let TESTIMONIALS = [];
+
+async function loadTestimonials(){
+  try{
+    const res = await sheetsStorage.get('kostolo-velemenyek');
+    if(res && res.value){
+      TESTIMONIALS = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve */ }
+  TESTIMONIALS = DEFAULT_TESTIMONIALS;
+  await saveTestimonials();
+}
+
+async function saveTestimonials(){
+  try{
+    const res = await sheetsStorage.set('kostolo-velemenyek', JSON.stringify(TESTIMONIALS));
+    return !!res;
+  }catch(e){
+    console.error('Vélemény mentési hiba:', e);
+    return false;
+  }
+}
+
+/* ---------- GALÉRIA (korábbi események képei) ---------- */
+const DEFAULT_GALLERY = [];
+let GALLERY = [];
+
+async function loadGallery(){
+  try{
+    const res = await sheetsStorage.get('kostolo-galeria');
+    if(res && res.value){
+      GALLERY = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve */ }
+  GALLERY = DEFAULT_GALLERY;
+  await saveGallery();
+}
+
+async function saveGallery(){
+  try{
+    const res = await sheetsStorage.set('kostolo-galeria', JSON.stringify(GALLERY));
+    return !!res;
+  }catch(e){
+    console.error('Galéria mentési hiba:', e);
+    return false;
+  }
+}
+
+function renderAboutPublic(){
+  const host = document.getElementById('about-text');
+  if(host) host.textContent = ABOUT_TEXT;
+  const img = document.getElementById('about-photo');
+  const layout = document.getElementById('about-layout');
+  if(img && layout){
+    if(ABOUT_IMAGE_URL){
+      img.onerror = () => handleImgError(img);
+      img.src = ABOUT_IMAGE_URL;
+      img.style.display = '';
+      layout.classList.remove('no-image');
+    }else{
+      img.style.display = 'none';
+      layout.classList.add('no-image');
+    }
+  }
+}
+
+function renderTestimonialsPublic(){
+  const host = document.getElementById('testimonials-grid');
+  if(!host) return;
+  if(!TESTIMONIALS.length){
+    host.innerHTML = '<div class="empty-note">Hamarosan itt olvashatók vendégeink visszajelzései.</div>';
+    return;
+  }
+  host.innerHTML = TESTIMONIALS.map(t => `
+    <div class="testimonial-card">
+      <div class="quote-mark">”</div>
+      <p>${(t.quote||'').replace(/</g,'&lt;')}</p>
+      <div class="testimonial-author">${(t.author||'').replace(/</g,'&lt;')}</div>
+    </div>
+  `).join('');
+}
+
+function renderGalleryPublic(){
+  const host = document.getElementById('gallery-grid');
+  if(!host) return;
+  if(!GALLERY.length){
+    host.innerHTML = '<div class="empty-note">Hamarosan itt láthatók korábbi kóstolóink pillanatai.</div>';
+    return;
+  }
+  host.innerHTML = GALLERY.map(g => `
+    <div class="gallery-item">
+      <img data-src="${g.url}" alt="${(g.caption||'').replace(/"/g,'&quot;')}" onerror="handleImgError(this)">
+      ${g.caption ? `<div class="gallery-caption">${g.caption.replace(/</g,'&lt;')}</div>` : ''}
+    </div>
+  `).join('');
+  host.querySelectorAll('img[data-src]').forEach((img, i) => {
+    setTimeout(() => { img.src = img.dataset.src; }, i * 180);
+  });
+}
+
+const ADMIN_PASSWORD = "borszat2026"; // ide írjátok a saját jelszavatokat, ha szeretnétek megváltoztatni
+const NOTIFY_EMAIL = "vialtumwines@gmail.com";
+const BANK_ACCOUNT_NAME = "IDE ÍRD A SZÁMLATULAJDONOS NEVÉT"; // pl. Vialtum Pince Kft.
+const BANK_ACCOUNT_NUMBER = "IDE ÍRD A BANKSZÁMLASZÁMOT"; // pl. 12345678-12345678-12345678
+
+const MONTHS = ["jan","feb","márc","ápr","máj","jún","júl","aug","szept","okt","nov","dec"];
+
+function fmtDate(d){
+  const dt = new Date(d + "T00:00:00");
+  return `${dt.getDate()}. ${MONTHS[dt.getMonth()]}`;
+}
+function fmtPrice(p){ return p.toLocaleString('hu-HU') + " Ft / fő"; }
+
+function truncateDesc(text, limit = 300){
+  if(!text || text.length <= limit) return { short: text || '', truncated: false };
+  const cut = text.slice(0, limit);
+  let lastBreak = -1;
+  for(const ch of ['.', '!', '?']){
+    const idx = cut.lastIndexOf(ch);
+    if(idx > lastBreak) lastBreak = idx;
+  }
+  const short = lastBreak > limit * 0.4 ? cut.slice(0, lastBreak + 1).trim() : cut.trim();
+  return { short, truncated: true };
+}
+
+let bookings = [];
+
+async function loadBookings(){
+  try{
+    const res = await sheetsStorage.get('kostolo-foglalasok');
+    bookings = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){
+    bookings = [];
+  }
+}
+
+async function saveBookings(){
+  try{
+    const res = await sheetsStorage.set('kostolo-foglalasok', JSON.stringify(bookings));
+    return !!res;
+  }catch(e){
+    console.error('Mentési hiba:', e);
+    return false;
+  }
+}
+
+function seatsTakenFor(eventId){
+  return bookings
+    .filter(b => b.eventId === eventId)
+    .reduce((sum, b) => sum + Number(b.letszam || 0), 0);
+}
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  EVENTS.forEach(ev => {
+    const taken = seatsTakenFor(ev.id);
+    const free = Math.max(0, ev.capacity - taken);
+    const isFull = free <= 0;
+    const desc = truncateDesc(ev.description);
+
+    const card = document.createElement('div');
+    card.className = 'card' + (isFull ? ' full' : '');
+    const dt = new Date(ev.date + "T00:00:00");
+    card.innerHTML = `
+      ${ev.image ? `<div class="card-poster" data-poster="${ev.image.replace(/"/g,'&quot;')}"></div>` : ''}
+      <div class="card-content">
+        <div class="seal"><span class="d">${dt.getDate()}</span><span class="m">${MONTHS[dt.getMonth()]}</span></div>
+        ${isFull ? '<div class="full-tag">Betelt</div>' : ''}
+        <h3>${ev.title}</h3>
+        ${ev.description ? `<p class="card-desc">${desc.short}${desc.truncated ? `… <button class="read-more-btn" data-details="${ev.id}">Bővebben…</button>` : ''}</p>` : ''}
+        <div class="meta-row">
+          <span class="price">${fmtPrice(ev.price)}</span>
+          <button class="btn" ${isFull ? 'disabled' : ''} data-event="${ev.id}">${isFull ? 'Betelt' : 'Foglalok'}</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  applyPosters(grid);
+  document.getElementById('stat-events').textContent = EVENTS.length;
+
+  grid.querySelectorAll('button[data-event]').forEach(btn=>{
+    btn.addEventListener('click', () => openBookingModal(btn.dataset.event));
+  });
+  grid.querySelectorAll('button[data-details]').forEach(btn=>{
+    btn.addEventListener('click', () => openEventDetailsModal(btn.dataset.details));
+  });
+
+  if(currentView === 'calendar' && calYear !== undefined){
+    renderCalendar();
+  }
+}
+
+/* ---------- VIEW TOGGLE (kártya / naptár) ---------- */
+let currentView = 'grid';
+let calYear, calMonth;
+
+document.getElementById('tab-grid').addEventListener('click', () => switchView('grid'));
+document.getElementById('tab-calendar').addEventListener('click', () => switchView('calendar'));
+
+function switchView(view){
+  currentView = view;
+  document.getElementById('grid').style.display = view === 'grid' ? 'grid' : 'none';
+  document.getElementById('calendar-view').style.display = view === 'calendar' ? 'block' : 'none';
+  document.getElementById('tab-grid').classList.toggle('active', view === 'grid');
+  document.getElementById('tab-calendar').classList.toggle('active', view === 'calendar');
+  if(view === 'calendar'){
+    if(calYear === undefined) initCalendarDate();
+    renderCalendar();
+  }
+}
+
+function initCalendarDate(){
+  const todayISO = todayISOString();
+  const sorted = [...EVENTS].sort((a,b)=> a.date.localeCompare(b.date));
+  const upcoming = sorted.find(e => e.date >= todayISO) || sorted[0];
+  const base = upcoming ? new Date(upcoming.date + "T00:00:00") : new Date();
+  calYear = base.getFullYear();
+  calMonth = base.getMonth();
+}
+
+function todayISOString(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+const MONTH_NAMES = ['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
+
+function buildMonthMatrix(year, month){
+  const firstOfMonth = new Date(year, month, 1);
+  let startWeekday = firstOfMonth.getDay(); // 0=Vas..6=Szo
+  startWeekday = (startWeekday === 0) ? 6 : startWeekday - 1; // Hétfő-first: 0=Hét..6=Vas
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  const cells = [];
+  for(let i = startWeekday - 1; i >= 0; i--){
+    cells.push({day: daysInPrevMonth - i, currentMonth: false});
+  }
+  for(let d = 1; d <= daysInMonth; d++){
+    const dateISO = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells.push({day: d, currentMonth: true, dateISO});
+  }
+  let nextDay = 1;
+  while(cells.length % 7 !== 0){
+    cells.push({day: nextDay++, currentMonth: false});
+  }
+  return cells;
+}
+
+function renderCalendar(){
+  document.getElementById('cal-month-label').textContent = `${calYear}. ${MONTH_NAMES[calMonth]}`;
+  const todayISO = todayISOString();
+  const cells = buildMonthMatrix(calYear, calMonth);
+  const grid = document.getElementById('cal-grid');
+
+  grid.innerHTML = cells.map(c => {
+    if(!c.currentMonth){
+      return `<div class="cal-day other-month"><div class="cal-day-content"><span class="daynum">${c.day}</span></div></div>`;
+    }
+    const dayEvents = EVENTS.filter(e => e.date === c.dateISO).sort((a,b)=> a.title.localeCompare(b.title));
+    const hasEvents = dayEvents.length > 0;
+    const isToday = c.dateISO === todayISO;
+    const isPast = c.dateISO < todayISO;
+    const privateBookingsForDay = !hasEvents ? bookings.filter(b => isPrivateBooking(b) && b.eventDate === c.dateISO) : [];
+    const totalSlots = generateTimeSlots().length;
+    const hasPrivate = privateBookingsForDay.length > 0;
+    const dayFull = hasPrivate && privateBookingsForDay.length >= totalSlots;
+    const isEmptyBookable = !hasEvents && !isPast && !dayFull;
+    const posterImg = hasEvents ? dayEvents.find(e => e.image)?.image : null;
+    return `<div class="cal-day ${hasEvents ? 'has-event' : ''} ${hasPrivate ? 'has-private' : ''} ${dayFull ? 'day-full' : ''} ${isEmptyBookable ? 'empty-bookable' : ''} ${isToday ? 'today' : ''}" ${hasEvents ? `data-day="${c.dateISO}"` : ''} ${isEmptyBookable ? `data-empty="${c.dateISO}"` : ''}>
+      ${posterImg ? `<div class="day-poster" data-poster="${posterImg.replace(/"/g,'&quot;')}"></div>` : ''}
+      <div class="cal-day-content">
+        <span class="daynum">${c.day}</span>
+        ${hasEvents ? `<div class="event-dot-wrap">
+          <div class="event-chip">${dayEvents[0].title.length > 18 ? dayEvents[0].title.slice(0,17) + '…' : dayEvents[0].title}</div>
+          ${dayEvents.length > 1 ? `<div class="more-chip">+${dayEvents.length - 1} további</div>` : ''}
+        </div>` : ''}
+        ${!hasEvents && hasPrivate ? `<div class="event-dot-wrap">
+          <div class="event-chip private-chip">${dayFull ? 'Minden idő foglalt' : `${privateBookingsForDay.length} egyéni foglalás`}</div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-day]').forEach(el => {
+    el.addEventListener('click', () => openDayEvents(el.dataset.day));
+  });
+  grid.querySelectorAll('[data-empty]').forEach(el => {
+    el.addEventListener('click', () => openPackageChooser(el.dataset.empty));
+  });
+  applyPosters(grid);
+}
+
+function changeMonth(direction){
+  const grid = document.getElementById('cal-grid');
+  grid.style.transition = 'transform .22s ease, opacity .22s ease';
+  grid.style.transform = `translateX(${direction * -28}px)`;
+  grid.style.opacity = '0';
+
+  setTimeout(() => {
+    calMonth += direction;
+    if(calMonth < 0){ calMonth = 11; calYear--; }
+    if(calMonth > 11){ calMonth = 0; calYear++; }
+    renderCalendar();
+
+    const freshGrid = document.getElementById('cal-grid');
+    freshGrid.style.transition = 'none';
+    freshGrid.style.transform = `translateX(${direction * 28}px)`;
+    freshGrid.style.opacity = '0';
+    requestAnimationFrame(() => {
+      freshGrid.style.transition = 'transform .22s ease, opacity .22s ease';
+      freshGrid.style.transform = 'translateX(0)';
+      freshGrid.style.opacity = '1';
+    });
+  }, 220);
+}
+
+document.getElementById('cal-prev').addEventListener('click', () => changeMonth(-1));
+document.getElementById('cal-next').addEventListener('click', () => changeMonth(1));
+
+function openDayEvents(dateISO){
+  const dayEvents = EVENTS.filter(e => e.date === dateISO).sort((a,b)=> a.title.localeCompare(b.title));
+  if(dayEvents.length === 0) return;
+  if(dayEvents.length === 1){ openBookingModal(dayEvents[0].id); return; }
+
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '';
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>${fmtDate(dateISO)}, 2026</h2>
+    <div class="sub">Ezen a napon több esemény is van — válassz:</div>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+      ${dayEvents.map(ev => `<button class="btn secondary" data-open="${ev.id}" style="text-align:left;">${ev.title} — ${fmtPrice(ev.price)}</button>`).join('')}
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  modal.querySelectorAll('button[data-open]').forEach(btn => {
+    btn.onclick = () => openBookingModal(btn.dataset.open);
+  });
+}
+
+function openPackageChooser(dateISO){
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '640px';
+  const darkBg = '#241016', darkText = '#f3e9dd', darkSub = '#c4b3a8';
+  const lightBg = '#e0b563', lightText = '#211407', lightSub = '#4a3418';
+
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>${fmtDate(dateISO)}, 2026</h2>
+    <div class="sub">Erre a napra nincs meghirdetett kóstoló, de foglalhatsz egyéni csomagot:</div>
+    <div class="pkg-tile-grid">
+      ${PACKAGES.map((p, i) => {
+        const row = Math.floor(i / 2), col = i % 2;
+        const isDark = (row + col) % 2 === 0;
+        const bg = isDark ? darkBg : lightBg;
+        const text = isDark ? darkText : lightText;
+        const sub = isDark ? darkSub : lightSub;
+        return `
+        <button class="pkg-tile" data-pkg="${p.id}" style="background:${bg}; color:${text};">
+          <span style="font-family:'Fraunces',serif; font-size:1.05rem; color:${text};">${p.title}</span>
+          <span style="font-size:0.8rem; color:${sub}; font-family:'Jost',sans-serif; line-height:1.5;">${p.description}</span>
+          ${p.minGroup && p.minGroup > 1 ? `<span class="mono" style="color:${sub}; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px;">Min. ${p.minGroup} fő</span>` : ''}
+          <span class="mono" style="color:${text}; font-size:0.8rem; font-weight:600; margin-top:auto;">${fmtPrice(p.price)}</span>
+        </button>`;
+      }).join('')}
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  modal.querySelectorAll('button[data-pkg]').forEach(btn => {
+    btn.onclick = () => {
+      const pkg = PACKAGES.find(p => p.id === btn.dataset.pkg);
+      openBookingModal({
+        id: `custom-${dateISO}-${pkg.id}`,
+        title: `${pkg.title} – Egyéni foglalás`,
+        date: dateISO,
+        price: pkg.price,
+        capacity: 40,
+        minGroup: pkg.minGroup || 1,
+        isPrivate: true,
+        addons: EXTRAS || []
+      });
+    };
+  });
+}
+
+function openBookingModal(eventRef){
+  const ev = typeof eventRef === 'string' ? EVENTS.find(e => e.id === eventRef) : eventRef;
+  const free = Math.max(0, ev.capacity - seatsTakenFor(ev.id));
+  const freePct = Math.max(0, Math.round((free / ev.capacity) * 100));
+  const minG = ev.minGroup || 1;
+  const maxG = ev.isPrivate ? 40 : Math.min(free, 20);
+
+  let timeSlotHTML = '';
+  let noSlotsAvailable = false;
+  if(ev.isPrivate){
+    const taken = takenSlotsForDate(ev.date);
+    const availableSlots = generateTimeSlots().filter(s => !taken.includes(s));
+    noSlotsAvailable = availableSlots.length === 0;
+    timeSlotHTML = availableSlots.length > 0 ? `
+      <label>Időpont</label>
+      <select id="bk-idopont">
+        ${availableSlots.map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select>
+    ` : `
+      <label>Időpont</label>
+      <div style="font-size:0.85rem; color:var(--mark-red); margin-top:6px;">Erre a napra sajnos minden időpont foglalt. Kérünk, válassz másik napot.</div>
+    `;
+  }
+
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '';
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>${ev.title}</h2>
+    <div class="sub">${fmtDate(ev.date)}, 2026 · ${fmtPrice(ev.price)}</div>
+    ${ev.isPrivate ? '' : `
+    <div class="seats-pct-bar"><div class="seats-pct-fill" style="width:${freePct}%"></div></div>
+    <div class="seats-pct-label">${freePct}% szabad hely</div>
+    `}
+    <div id="booking-form">
+      ${timeSlotHTML}
+      <label>Név / cégnév</label>
+      <input type="text" id="bk-nev" placeholder="Kovács Anna">
+      <label>Telefonszám</label>
+      <input type="tel" id="bk-telefon" placeholder="+36 20 123 4567">
+      <label>Email</label>
+      <input type="email" id="bk-email" placeholder="anna@email.hu">
+      <label>Számlázási cím</label>
+      <input type="text" id="bk-cim" placeholder="1234 Budapest, Példa utca 1.">
+      <label>Adószám (cég esetén, opcionális)</label>
+      <input type="text" id="bk-adoszam" placeholder="12345678-1-42">
+      <label>Létszám</label>
+      <select id="bk-letszam">
+        ${Array.from({length: Math.max(0, maxG - minG + 1)}, (_,i)=> i + minG).map(n=>`<option value="${n}">${n} fő</option>`).join('')}
+      </select>
+      ${ev.minGroup && ev.minGroup > 1 ? `<div style="font-size:0.75rem; color:var(--gold); margin-top:6px; font-family:'IBM Plex Mono', monospace;">Ez a program minimum ${ev.minGroup} fő részvételével indul.</div>` : ''}
+      ${ev.addons && ev.addons.length ? `
+        <label>Opcionális extrák</label>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+          ${ev.addons.map(a => `
+            <label style="display:flex; align-items:center; gap:10px; text-transform:none; letter-spacing:0; font-family:'Jost',sans-serif; font-size:0.9rem; color:var(--cream); margin:0;">
+              <input type="checkbox" class="addon-checkbox" data-addon-id="${a.id}" data-addon-label="${(a.label||'').replace(/"/g,'&quot;')}" data-addon-price="${a.price||0}" style="width:auto;">
+              ${a.label || 'Extra'}${a.price ? ` <span class="mono" style="color:var(--gold-bright); font-size:0.78rem;">(+${fmtPrice(a.price)})</span>` : ''}
+            </label>
+          `).join('')}
+        </div>
+      ` : ''}
+      <div id="form-error" style="display:none; margin-top:14px; padding:10px 12px; background:rgba(140,47,57,0.15); border:1px solid var(--wine); border-radius:8px; font-size:0.85rem; color:var(--cream);"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" id="cancel-modal">Mégse</button>
+        <button type="button" class="btn" id="submit-booking" ${noSlotsAvailable ? 'disabled' : ''}>Foglalás rögzítése</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  document.getElementById('cancel-modal').onclick = closeModal;
+  document.getElementById('submit-booking').onclick = () => submitBooking(ev);
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function openEventDetailsModal(eventId){
+  const ev = EVENTS.find(e => e.id === eventId);
+  if(!ev) return;
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '560px';
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>${ev.title}</h2>
+    <div class="sub">${fmtDate(ev.date)}, 2026 · ${fmtPrice(ev.price)}</div>
+    <p style="color:var(--cream-dim); font-size:0.9rem; line-height:1.7; white-space:pre-line; margin-top:14px;">${(ev.description || '').replace(/</g,'&lt;')}</p>
+    <div class="modal-actions">
+      <button type="button" class="btn secondary" id="cancel-modal">Bezár</button>
+      <button type="button" class="btn" id="details-book-btn">Foglalok</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  document.getElementById('cancel-modal').onclick = closeModal;
+  document.getElementById('details-book-btn').onclick = () => openBookingModal(ev);
+}
+
+async function submitBooking(ev){
+  const submitBtn = document.getElementById('submit-booking');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Mentés…';
+
+  const nev = document.getElementById('bk-nev').value.trim();
+  const telefon = document.getElementById('bk-telefon').value.trim();
+  const email = document.getElementById('bk-email').value.trim();
+  const cim = document.getElementById('bk-cim').value.trim();
+  const adoszam = document.getElementById('bk-adoszam').value.trim();
+  const letszam = Number(document.getElementById('bk-letszam').value);
+  const idopontEl = document.getElementById('bk-idopont');
+  const idopont = idopontEl ? idopontEl.value : null;
+  const selectedAddons = Array.from(document.querySelectorAll('.addon-checkbox:checked')).map(cb => ({
+    label: cb.dataset.addonLabel,
+    price: Number(cb.dataset.addonPrice) || 0
+  }));
+
+  if(!nev || !telefon || !email || !cim){
+    showFormError('Kérlek töltsd ki a nevet, telefonszámot, email-címet és a számlázási címet is.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Foglalás rögzítése';
+    return;
+  }
+
+  const booking = {
+    id: 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    eventId: ev.id,
+    eventTitle: ev.title,
+    eventDate: ev.date,
+    price: ev.price,
+    nev, telefon, email, cim, adoszam,
+    letszam,
+    addons: selectedAddons,
+    isPrivate: !!ev.isPrivate,
+    idopont: ev.isPrivate ? idopont : null,
+    created: new Date().toISOString()
+  };
+
+  // re-check ütközés/kapacitás közvetlenül mentés előtt (ha közben más is foglalt)
+  await loadBookings();
+  if(ev.isPrivate){
+    const stillFree = !takenSlotsForDate(ev.date).includes(booking.idopont);
+    if(!stillFree){
+      showFormError('Sajnos épp most foglalták le ezt az időpontot. Kérlek válassz másikat!');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Foglalás rögzítése';
+      openBookingModal(ev);
+      return;
+    }
+  }else{
+    const free = ev.capacity - seatsTakenFor(ev.id);
+    if(booking.letszam > free){
+      showFormError('Sajnos épp most telt be ez a kóstoló. Kérlek válassz másik alkalmat!');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Foglalás rögzítése';
+      renderGrid();
+      return;
+    }
+  }
+
+  bookings.push(booking);
+  const ok = await saveBookings();
+
+  if(!ok){
+    showFormError('Hiba történt a mentés közben, kérlek próbáld újra.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Foglalás rögzítése';
+    return;
+  }
+
+  showSuccess(booking, ev);
+  renderGrid();
+}
+
+function showFormError(msg){
+  const box = document.getElementById('form-error');
+  if(box){ box.textContent = msg; box.style.display = 'block'; }
+}
+
+function showSuccess(booking, ev){
+  const subject = encodeURIComponent(`Kóstoló foglalás – ${ev.title} (${fmtDate(ev.date)})`);
+  const body = encodeURIComponent(
+`Új foglalás érkezett a weboldalról:
+
+Kóstoló: ${ev.title}
+Dátum: ${fmtDate(ev.date)}, 2026${booking.idopont ? `\nIdőpont: ${booking.idopont}` : ''}
+Név: ${booking.nev}
+Telefon: ${booking.telefon}
+Email: ${booking.email}
+Számlázási cím: ${booking.cim}
+Adószám: ${booking.adoszam || '–'}
+Létszám: ${booking.letszam} fő
+`);
+  const mailto = `mailto:${NOTIFY_EMAIL}?subject=${subject}&body=${body}`;
+
+  const modal = document.getElementById('modal-content');
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <div class="success-box">
+      <div class="check">🍷</div>
+      <h2>Foglalás rögzítve!</h2>
+      <p>Fenntartottuk a helyed a(z) <strong>${ev.title}</strong> kóstolóra (${fmtDate(ev.date)}, 2026${booking.idopont ? `, ${booking.idopont}` : ''}).</p>
+      ${ev.paymentLink ? `
+        <p><strong style="color:var(--gold-bright)">A hely véglegesítéséhez fizesd be a részvételi díjat</strong> az alábbi gombra kattintva. A foglalás a fizetés beérkezéséig nem tekinthető véglegesnek.</p>
+        <a href="${ev.paymentLink}" target="_blank" rel="noopener" class="btn" style="display:inline-block; text-decoration:none; margin-top:6px;">Fizetés indítása</a>
+      ` : `<p>Hamarosan felvesszük veled a kapcsolatot a megadott elérhetőségen.</p>`}
+      <p style="margin-top:20px;">Amíg nincs automatikus email-küldés beállítva, kérünk, küldd el ezt az értesítést is nekünk egy kattintással:</p>
+      <a href="${mailto}" class="btn secondary" style="display:inline-block; text-decoration:none; margin-top:8px;">Értesítés emailben a borászatnak</a>
+    </div>
+  `;
+  document.getElementById('close-modal').onclick = () => { closeModal(); };
+}
+
+/* ---------- ADMIN ---------- */
+let adminOpen = false;
+document.getElementById('admin-toggle').addEventListener('click', async () => {
+  if(adminOpen){
+    document.getElementById('admin-panel').innerHTML = '';
+    document.getElementById('admin-toggle').textContent = 'Admin belépés';
+    adminOpen = false;
+    return;
+  }
+  openAdminLoginModal();
+});
+
+function openAdminLoginModal(){
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '';
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>Admin belépés</h2>
+    <div class="sub">Add meg a jelszót a foglalások és a naptár kezeléséhez.</div>
+    <div id="admin-login-form">
+      <label>Jelszó</label>
+      <input type="password" id="admin-pw-input">
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" id="cancel-login">Mégse</button>
+        <button type="button" class="btn" id="do-login">Belépés</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  document.getElementById('cancel-login').onclick = closeModal;
+
+  const pwInput = document.getElementById('admin-pw-input');
+  pwInput.focus();
+
+  const doLogin = async () => {
+    const pw = pwInput.value;
+    const sub = modal.querySelector('.sub');
+    if(!pw || !pw.trim()){
+      sub.textContent = 'Írd be a jelszót a belépéshez.';
+      sub.style.color = 'var(--wine-bright)';
+      return;
+    }
+    if(pw !== ADMIN_PASSWORD){
+      sub.textContent = 'Hibás jelszó, próbáld újra.';
+      sub.style.color = 'var(--wine-bright)';
+      pwInput.value = '';
+      return;
+    }
+    closeModal();
+    adminOpen = true;
+    document.getElementById('admin-toggle').textContent = 'Admin bezárása';
+    await Promise.all([
+      loadEvents(), loadPackages(), loadExtras(), loadBookings(),
+      loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
+    ]);
+    renderAdmin();
+  };
+
+  document.getElementById('do-login').onclick = doLogin;
+  pwInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); doLogin(); } };
+}
+
+let editingEventId = null; // ha nem null, épp egy meglévő eseményt szerkesztünk
+let adminTab = 'foglalasok';
+
+const ADMIN_TABS = [
+  {id:'foglalasok', label:'Foglalások'},
+  {id:'kostolok', label:'Kóstolók'},
+  {id:'csomagok', label:'Csomagok'},
+  {id:'extrak', label:'Extrák'},
+  {id:'rolunk', label:'Rólunk'},
+  {id:'velemenyek', label:'Vélemények'},
+  {id:'galeria', label:'Galéria'},
+];
+
+function renderAdmin(){
+  const panel = document.getElementById('admin-panel');
+  const sorted = [...bookings].sort((a,b)=> a.eventDate.localeCompare(b.eventDate));
+  const eventsSorted = [...EVENTS].sort((a,b)=> a.date.localeCompare(b.date));
+
+  const eventRows = eventsSorted.map(ev=>{
+    const taken = seatsTakenFor(ev.id);
+    return `
+    <tr>
+      <td>${fmtDate(ev.date)}</td>
+      <td>${ev.title}</td>
+      <td>${fmtPrice(ev.price)}</td>
+      <td>${taken}/${ev.capacity}</td>
+      <td>
+        <button class="btn ghost" data-edit="${ev.id}">Szerkeszt</button>
+        <button class="btn ghost" data-delete="${ev.id}">Töröl</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const bookingRows = sorted.map(b=>`
+    <tr>
+      <td>${fmtDate(b.eventDate)}</td>
+      <td>${b.idopont || '–'}</td>
+      <td>${b.eventTitle}</td>
+      <td>${b.nev}</td>
+      <td>${b.telefon}</td>
+      <td>${b.email}</td>
+      <td>${b.cim || '–'}</td>
+      <td>${b.adoszam || '–'}</td>
+      <td>${b.letszam}</td>
+      <td>${(b.addons && b.addons.length) ? b.addons.map(a => a.price ? `${a.label} (+${fmtPrice(a.price)})` : a.label).join(', ') : '–'}</td>
+      <td><span style="color:${b.confirmed ? 'var(--gold-bright)' : 'var(--cream-dim)'}; font-family:'IBM Plex Mono', monospace; font-size:0.72rem;">${b.confirmed ? 'Visszaigazolva' : 'Visszaigazolásra vár'}</span></td>
+      <td style="white-space:nowrap;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;">
+          <button class="btn secondary" data-confirm-booking="${b.id}">${b.confirmed ? 'Visszaigazolás visszavonása' : 'Foglalás visszaigazolása'}</button>
+          <button class="btn secondary" data-delete-booking="${b.id}">Foglalás törlése</button>
+        </div>
+        <button class="btn ghost" data-send-payment-info="${b.id}">Számlaadat küldése</button>
+      </td>
+    </tr>
+  `).join('');
+
+  const editing = editingEventId ? EVENTS.find(e=>e.id===editingEventId) : null;
+
+  const tabsHTML = `
+    <div class="admin-tabs">
+      ${ADMIN_TABS.map(t => `<button class="admin-tab-btn ${adminTab===t.id?'active':''}" data-admin-tab="${t.id}">${t.label}${t.id==='foglalasok' ? ` (${bookings.length})` : ''}${t.id==='kostolok' ? ` (${EVENTS.length})` : ''}</button>`).join('')}
+      <button class="btn ghost" id="refresh-admin" style="margin-left:auto;">Frissítés</button>
+    </div>
+  `;
+
+  const foglalasokHTML = `
+    <h3 style="margin-top:0;">Foglalások (${bookings.length})</h3>
+    <table><thead><tr><th>Dátum</th><th>Időpont</th><th>Kóstoló</th><th>Név</th><th>Telefon</th><th>Email</th><th>Számlázási cím</th><th>Adószám</th><th>Fő</th><th>Extrák</th><th>Státusz</th><th></th></tr></thead>
+    <tbody>${bookingRows || '<tr><td colspan="12">Még nincs foglalás.</td></tr>'}</tbody></table>
+    <div class="row-actions">
+      <button class="btn secondary" id="export-csv">Exportálás CSV-be</button>
+    </div>
+  `;
+
+  const kostolokHTML = `
+    <h3 style="margin-top:0;">${editing ? 'Esemény szerkesztése' : 'Új esemény hozzáadása'}</h3>
+    <div id="event-form">
+      <label>Dátum</label>
+      <input type="date" id="ev-date" value="${editing ? editing.date : ''}">
+      <label>Kóstoló neve</label>
+      <input type="text" id="ev-title" placeholder="pl. Tavaszi rosé kóstoló" value="${editing ? editing.title.replace(/"/g,'&quot;') : ''}">
+      <label>Ár (Ft/fő)</label>
+      <input type="number" id="ev-price" min="0" step="500" value="${editing ? editing.price : 15000}">
+      <label>Max. létszám</label>
+      <input type="number" id="ev-capacity" min="1" value="${editing ? editing.capacity : 45}">
+      <label>Rövid leírás (opcionális)</label>
+      <textarea id="ev-desc" rows="3" placeholder="Pár mondat, mi teszi különlegessé ezt a kóstolót…" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;">${editing && editing.description ? editing.description.replace(/</g,'&lt;') : ''}</textarea>
+      <label>Kép URL (opcionális)</label>
+      <input type="url" id="ev-image" placeholder="https://…" value="${editing && editing.image ? editing.image.replace(/"/g,'&quot;') : ''}">
+      <label>Fizetési link (opcionális — pl. Barion fizetési link)</label>
+      <input type="url" id="ev-paylink" placeholder="https://www.barion.com/…" value="${editing && editing.paymentLink ? editing.paymentLink.replace(/"/g,'&quot;') : ''}">
+      <div id="event-form-error" style="display:none; margin-top:14px; padding:10px 12px; background:rgba(140,47,57,0.15); border:1px solid var(--wine); border-radius:8px; font-size:0.85rem; color:var(--cream);"></div>
+      <div class="row-actions">
+        <button type="button" class="btn" id="save-event">${editing ? 'Módosítás mentése' : 'Esemény hozzáadása'}</button>
+        ${editing ? '<button type="button" class="btn secondary" id="cancel-edit">Mégse</button>' : ''}
+      </div>
+    </div>
+
+    <h3 style="margin-top:30px;">Kóstolók (${EVENTS.length})</h3>
+    <table><thead><tr><th>Dátum</th><th>Kóstoló</th><th>Ár</th><th>Foglalt/Max</th><th></th></tr></thead>
+    <tbody>${eventRows}</tbody></table>
+  `;
+
+  const csomagokHTML = `
+    <h3 style="margin-top:0;">Foglalható időpontok (egyéni csomagoknál)</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Ha a vendég egy üres napra egyéni csomagot foglal, ezek közül az óránkénti időpontok közül választhat. Egy napon több különálló időpont is lefoglalható.</div>
+    <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; margin-bottom:30px;">
+      <div style="flex:1; min-width:140px;">
+        <label>Legkorábbi időpont</label>
+        <input type="time" id="private-hours-start" value="${PRIVATE_HOURS.start}">
+      </div>
+      <div style="flex:1; min-width:140px;">
+        <label>Legkésőbbi időpont</label>
+        <input type="time" id="private-hours-end" value="${PRIVATE_HOURS.end}">
+      </div>
+      <button class="btn" id="save-private-hours" style="height:fit-content;">Mentés</button>
+      <span id="private-hours-saved-msg" style="display:none; color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.78rem; align-self:center;">Mentve ✓</span>
+    </div>
+
+    <h3 style="margin-top:0;">Egyéni foglalási csomagok (üres napokra)</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Ha a vendég a naptárban egy olyan napra kattint, amikor nincs meghirdetett kóstoló, ezekből a csomagokból választhat. Tetszőleges számú csomagot adhatsz hozzá.</div>
+    <div id="packages-editor"></div>
+    <div class="row-actions">
+      <button class="btn secondary" id="add-package">+ Új csomag hozzáadása</button>
+      <button class="btn" id="save-packages">Csomagok mentése</button>
+      <span id="packages-saved-msg" style="display:none; color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.78rem; align-self:center;">Mentve ✓</span>
+    </div>
+  `;
+
+  const extrakHTML = `
+    <h3 style="margin-top:0;">Extrák (egyéni csomagoknál választható opciók)</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Ez a lista közös — minden egyéni csomagnál ugyanezek az extrák jelennek meg, nem kell csomagonként külön beállítanod.</div>
+    <div id="extras-editor"></div>
+    <div class="row-actions">
+      <button class="btn secondary" id="add-extra">+ Új extra hozzáadása</button>
+      <button class="btn" id="save-extras">Extrák mentése</button>
+      <span id="extras-saved-msg" style="display:none; color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.78rem; align-self:center;">Mentve ✓</span>
+    </div>
+  `;
+
+  const rolunkHTML = `
+    <h3 style="margin-top:0;">Rólunk szöveg</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Ez a szöveg jelenik meg a főoldal "Rólunk" szekciójában.</div>
+    <div id="about-editor"></div>
+  `;
+
+  const velemenyekHTML = `
+    <h3 style="margin-top:0;">Rólunk mondták (vélemények)</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Vendégek visszajelzései, amik a főoldalon jelennek meg.</div>
+    <div id="testimonials-editor"></div>
+    <div class="row-actions">
+      <button class="btn secondary" id="add-testimonial">+ Új vélemény hozzáadása</button>
+      <button class="btn" id="save-testimonials">Vélemények mentése</button>
+      <span id="testimonials-saved-msg" style="display:none; color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.78rem; align-self:center;">Mentve ✓</span>
+    </div>
+  `;
+
+  const galeriaHTML = `
+    <h3 style="margin-top:0;">Galéria (korábbi események képei)</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">A képeket egy már feltöltött, nyilvánosan elérhető kép URL-jével tudod hozzáadni (pl. Google Drive/Fotók megosztási linkkel).</div>
+    <div id="gallery-editor"></div>
+    <div class="row-actions">
+      <button class="btn secondary" id="add-gallery">+ Új kép hozzáadása</button>
+      <button class="btn" id="save-gallery">Galéria mentése</button>
+      <span id="gallery-saved-msg" style="display:none; color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.78rem; align-self:center;">Mentve ✓</span>
+    </div>
+  `;
+
+  const tabContent = {
+    foglalasok: foglalasokHTML,
+    kostolok: kostolokHTML,
+    csomagok: csomagokHTML,
+    extrak: extrakHTML,
+    rolunk: rolunkHTML,
+    velemenyek: velemenyekHTML,
+    galeria: galeriaHTML,
+  }[adminTab];
+
+  panel.innerHTML = `
+    <div class="admin-panel">
+      ${tabsHTML}
+      <div class="admin-tab-content">${tabContent}</div>
+    </div>
+  `;
+
+  document.getElementById('refresh-admin').onclick = async () => {
+    await Promise.all([
+      loadEvents(), loadPackages(), loadExtras(), loadBookings(),
+      loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
+    ]);
+    renderAdmin(); renderGrid(); renderAboutPublic(); renderTestimonialsPublic(); renderGalleryPublic();
+  };
+  panel.querySelectorAll('button[data-admin-tab]').forEach(btn=>{
+    btn.onclick = () => { adminTab = btn.dataset.adminTab; editingEventId = null; renderAdmin(); };
+  });
+
+  if(adminTab === 'foglalasok'){
+    document.getElementById('export-csv').onclick = exportCSV;
+    panel.querySelectorAll('button[data-confirm-booking]').forEach(btn=>{
+      btn.onclick = async () => {
+        const b = bookings.find(x => x.id === btn.dataset.confirmBooking);
+        b.confirmed = !b.confirmed;
+        await saveBookings();
+        renderAdmin();
+      };
+    });
+    panel.querySelectorAll('button[data-send-payment-info]').forEach(btn=>{
+      btn.onclick = () => {
+        const b = bookings.find(x => x.id === btn.dataset.sendPaymentInfo);
+        const basePrice = (typeof b.price === 'number') ? b.price : (EVENTS.find(x => x.id === b.eventId)?.price ?? null);
+        const addonsTotal = (b.addons || []).reduce((sum, a) => sum + (Number(a.price) || 0), 0);
+        const total = basePrice !== null ? basePrice * b.letszam + addonsTotal : null;
+        const addonsLine = (b.addons && b.addons.length)
+          ? `\nVálasztott extrák: ${b.addons.map(a => a.price ? `${a.label} (+${fmtPrice(a.price).replace(' / fő','')})` : a.label).join(', ')}`
+          : '';
+        const subject = encodeURIComponent(`Számlaadatok – ${b.eventTitle} (${fmtDate(b.eventDate)})`);
+        const body = encodeURIComponent(
+`Kedves ${b.nev}!
+
+Köszönjük a foglalást a(z) "${b.eventTitle}" kóstolóra (${fmtDate(b.eventDate)}, 2026)${b.idopont ? `, ${b.idopont}` : ''}, ${b.letszam} fő részére.${addonsLine}
+
+A hely véglegesítéséhez kérjük, utald át a részvételi díjat az alábbi adatokra:
+
+Kedvezményezett: ${BANK_ACCOUNT_NAME}
+Számlaszám: ${BANK_ACCOUNT_NUMBER}
+Összeg: ${total !== null ? total.toLocaleString('hu-HU') + ' Ft' : '—'}
+Közlemény: ${b.nev} – ${fmtDate(b.eventDate)}
+
+Utalás beérkezése után a foglalás véglegesnek tekinthető. Várunk szeretettel!
+
+Vialtum Pince, Dunaföldvár`);
+        window.location.href = `mailto:${b.email}?subject=${subject}&body=${body}`;
+      };
+    });
+    panel.querySelectorAll('button[data-delete-booking]').forEach(btn=>{
+      btn.onclick = () => {
+        const b = bookings.find(x => x.id === btn.dataset.deleteBooking);
+        openConfirmModal(
+          `Biztosan törlöd ezt a foglalást?`,
+          `${b.nev} — "${b.eventTitle}" (${fmtDate(b.eventDate)}), ${b.letszam} fő`,
+          async () => {
+            bookings = bookings.filter(x => x.id !== b.id);
+            await saveBookings();
+            renderAdmin();
+            renderGrid();
+          }
+        );
+      };
+    });
+  }
+
+  if(adminTab === 'kostolok'){
+    document.getElementById('save-event').onclick = submitEventForm;
+    if(editing){
+      document.getElementById('cancel-edit').onclick = () => { editingEventId = null; renderAdmin(); };
+    }
+    panel.querySelectorAll('button[data-edit]').forEach(btn=>{
+      btn.onclick = () => { editingEventId = btn.dataset.edit; renderAdmin(); };
+    });
+    panel.querySelectorAll('button[data-delete]').forEach(btn=>{
+      btn.onclick = () => {
+        const ev = EVENTS.find(e=>e.id===btn.dataset.delete);
+        const taken = seatsTakenFor(ev.id);
+        const warn = taken > 0 ? `<br><br><strong style="color:var(--wine-bright)">Figyelem:</strong> erre az eseményre már van ${taken} fős foglalás. A foglalások megmaradnak, de a naptárból eltűnik az esemény.` : '';
+        openConfirmModal(
+          `Biztosan törlöd?`,
+          `"${ev.title}" (${fmtDate(ev.date)})${warn}`,
+          async () => {
+            EVENTS = EVENTS.filter(e => e.id !== ev.id);
+            await saveEvents();
+            renderAdmin();
+            renderGrid();
+          }
+        );
+      };
+    });
+  }
+
+  if(adminTab === 'csomagok'){
+    renderPackagesEditor();
+    document.getElementById('save-private-hours').onclick = async () => {
+      PRIVATE_HOURS = {
+        start: document.getElementById('private-hours-start').value || '10:00',
+        end: document.getElementById('private-hours-end').value || '20:00'
+      };
+      const ok = await savePrivateHours();
+      const msg = document.getElementById('private-hours-saved-msg');
+      msg.style.display = 'inline';
+      msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
+      msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
+      setTimeout(() => { msg.style.display = 'none'; }, 2500);
+    };
+  }
+  if(adminTab === 'extrak') renderExtrasEditor();
+  if(adminTab === 'rolunk') renderAboutEditor();
+  if(adminTab === 'velemenyek') renderTestimonialsEditor();
+  if(adminTab === 'galeria') renderGalleryEditor();
+}
+
+function openConfirmModal(title, message, onConfirm){
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '';
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>${title}</h2>
+    <div class="sub">${message}</div>
+    <div class="modal-actions">
+      <button type="button" class="btn secondary" id="cancel-confirm">Mégse</button>
+      <button type="button" class="btn" id="do-confirm">Törlés megerősítése</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  document.getElementById('cancel-confirm').onclick = closeModal;
+  document.getElementById('do-confirm').onclick = async () => {
+    closeModal();
+    await onConfirm();
+  };
+}
+
+/* ---------- CSOMAGOK SZERKESZTŐJE (tetszőleges szám, tetszőleges extrákkal) ---------- */
+function renderPackagesEditor(){
+  const host = document.getElementById('packages-editor');
+  if(!host) return;
+
+  host.innerHTML = PACKAGES.map((p, i) => `
+    <div style="border:1px solid var(--line); padding:18px; margin-bottom:14px;" data-pkg-card="${p.id}">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <span style="font-family:'IBM Plex Mono', monospace; font-size:0.7rem; color:var(--gold); letter-spacing:1px; text-transform:uppercase;">Csomag ${i+1}</span>
+        <button class="btn ghost" data-remove-package="${p.id}">Csomag törlése</button>
+      </div>
+      <label>Csomag neve</label>
+      <input type="text" data-field="title" data-pkg="${p.id}" value="${(p.title||'').replace(/"/g,'&quot;')}">
+      <label>Leírás</label>
+      <textarea data-field="description" data-pkg="${p.id}" rows="2" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;">${(p.description||'').replace(/</g,'&lt;')}</textarea>
+      <label>Ár (Ft/fő)</label>
+      <input type="number" data-field="price" data-pkg="${p.id}" min="0" step="500" value="${p.price}">
+      <label>Minimum létszám (1 = nincs minimum)</label>
+      <input type="number" data-field="minGroup" data-pkg="${p.id}" min="1" step="1" value="${p.minGroup || 1}">
+    </div>
+  `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem;">Még nincs egyéni csomag — adj hozzá egyet lent.</div>';
+
+  // mezők szerkesztése -> közvetlenül a PACKAGES tömbbe írjuk, újrarajzolás nélkül
+  host.querySelectorAll('[data-field]').forEach(input => {
+    input.oninput = () => {
+      const pkg = PACKAGES.find(p => p.id === input.dataset.pkg);
+      if(!pkg) return;
+      pkg[input.dataset.field] = (input.dataset.field === 'price' || input.dataset.field === 'minGroup') ? Number(input.value) : input.value;
+    };
+  });
+  host.querySelectorAll('[data-remove-package]').forEach(btn => {
+    btn.onclick = () => {
+      const pkg = PACKAGES.find(p => p.id === btn.dataset.removePackage);
+      if(!pkg) return;
+      openConfirmModal(
+        'Biztosan törlöd ezt a csomagot?',
+        `"${pkg.title}"`,
+        () => {
+          PACKAGES = PACKAGES.filter(p => p.id !== pkg.id);
+          renderPackagesEditor();
+        }
+      );
+    };
+  });
+
+  const addBtn = document.getElementById('add-package');
+  if(addBtn){
+    addBtn.onclick = () => {
+      PACKAGES.push({
+        id: 'pkg_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        title: `${PACKAGES.length + 1}. Csomag`,
+        description: '',
+        price: 15000,
+        minGroup: 1
+      });
+      renderPackagesEditor();
+    };
+  }
+
+  const saveBtn = document.getElementById('save-packages');
+  if(saveBtn){
+    saveBtn.onclick = async () => {
+      const ok = await savePackages();
+      const msg = document.getElementById('packages-saved-msg');
+      if(msg){
+        msg.style.display = 'inline';
+        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
+        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      }
+    };
+  }
+}
+
+/* ---------- KÖZÖS EXTRA-LISTA SZERKESZTŐJE ---------- */
+function renderExtrasEditor(){
+  const host = document.getElementById('extras-editor');
+  if(!host) return;
+
+  host.innerHTML = EXTRAS.map(a => `
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;" data-extra-row="${a.id}">
+      <input type="text" data-extra-field="label" data-extra="${a.id}" placeholder="Extra neve (pl. Extra sajttál)" style="flex:2;" value="${(a.label||'').replace(/"/g,'&quot;')}">
+      <input type="number" data-extra-field="price" data-extra="${a.id}" placeholder="Ft" min="0" step="500" style="flex:1;" value="${a.price||0}">
+      <button class="btn ghost" data-remove-extra="${a.id}" style="flex:0;">✕</button>
+    </div>
+  `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:10px;">Egyelőre nincs extra — adj hozzá egyet lent.</div>';
+
+  host.querySelectorAll('[data-extra-field]').forEach(input => {
+    input.oninput = () => {
+      const extra = EXTRAS.find(a => a.id === input.dataset.extra);
+      if(!extra) return;
+      extra[input.dataset.extraField] = input.dataset.extraField === 'price' ? Number(input.value) : input.value;
+    };
+  });
+  host.querySelectorAll('[data-remove-extra]').forEach(btn => {
+    btn.onclick = () => {
+      EXTRAS = EXTRAS.filter(a => a.id !== btn.dataset.removeExtra);
+      renderExtrasEditor();
+    };
+  });
+
+  const addBtn = document.getElementById('add-extra');
+  if(addBtn){
+    addBtn.onclick = () => {
+      EXTRAS.push({id: 'extra_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), label:'', price:0});
+      renderExtrasEditor();
+    };
+  }
+
+  const saveBtn = document.getElementById('save-extras');
+  if(saveBtn){
+    saveBtn.onclick = async () => {
+      const ok = await saveExtras();
+      const msg = document.getElementById('extras-saved-msg');
+      if(msg){
+        msg.style.display = 'inline';
+        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
+        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      }
+    };
+  }
+}
+
+/* ---------- RÓLUNK SZERKESZTŐJE ---------- */
+function renderAboutEditor(){
+  const host = document.getElementById('about-editor');
+  if(!host) return;
+  host.innerHTML = `
+    <label>Kép URL (opcionális)</label>
+    <input type="url" id="about-image-input" placeholder="https://…" value="${(ABOUT_IMAGE_URL||'').replace(/"/g,'&quot;')}">
+    <label style="margin-top:16px;">Szöveg</label>
+    <textarea id="about-text-input" rows="6" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;">${ABOUT_TEXT.replace(/</g,'&lt;')}</textarea>
+    <div class="row-actions">
+      <button class="btn" id="save-about">Rólunk mentése</button>
+      <span id="about-saved-msg" style="display:none; color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.78rem; align-self:center;">Mentve ✓</span>
+    </div>
+  `;
+  document.getElementById('save-about').onclick = async () => {
+    ABOUT_TEXT = document.getElementById('about-text-input').value;
+    ABOUT_IMAGE_URL = document.getElementById('about-image-input').value.trim();
+    const ok1 = await saveAbout();
+    const ok2 = await saveAboutImage();
+    renderAboutPublic();
+    const msg = document.getElementById('about-saved-msg');
+    if(msg){
+      msg.style.display = 'inline';
+      msg.textContent = (ok1 && ok2) ? 'Mentve ✓' : 'Hiba a mentéskor';
+      msg.style.color = (ok1 && ok2) ? 'var(--gold-bright)' : 'var(--mark-red)';
+      setTimeout(() => { msg.style.display = 'none'; }, 2500);
+    }
+  };
+}
+
+/* ---------- VÉLEMÉNYEK SZERKESZTŐJE ---------- */
+function renderTestimonialsEditor(){
+  const host = document.getElementById('testimonials-editor');
+  if(!host) return;
+
+  host.innerHTML = TESTIMONIALS.map(t => `
+    <div style="border:1px solid var(--line); padding:14px; margin-bottom:10px;" data-testi-row="${t.id}">
+      <label>Idézet</label>
+      <textarea data-testi-field="quote" data-testi="${t.id}" rows="2" placeholder="pl. Fantasztikus élmény volt, remek borokkal!" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;">${(t.quote||'').replace(/</g,'&lt;')}</textarea>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px;">
+        <input type="text" data-testi-field="author" data-testi="${t.id}" placeholder="Név (pl. Kovács Anna)" style="flex:1;" value="${(t.author||'').replace(/"/g,'&quot;')}">
+        <button class="btn ghost" data-remove-testi="${t.id}">✕</button>
+      </div>
+    </div>
+  `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:10px;">Egyelőre nincs vélemény — adj hozzá egyet lent.</div>';
+
+  host.querySelectorAll('[data-testi-field]').forEach(input => {
+    input.oninput = () => {
+      const t = TESTIMONIALS.find(x => x.id === input.dataset.testi);
+      if(!t) return;
+      t[input.dataset.testiField] = input.value;
+    };
+  });
+  host.querySelectorAll('[data-remove-testi]').forEach(btn => {
+    btn.onclick = () => {
+      TESTIMONIALS = TESTIMONIALS.filter(t => t.id !== btn.dataset.removeTesti);
+      renderTestimonialsEditor();
+    };
+  });
+
+  const addBtn = document.getElementById('add-testimonial');
+  if(addBtn){
+    addBtn.onclick = () => {
+      TESTIMONIALS.push({id: 'testi_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), quote:'', author:''});
+      renderTestimonialsEditor();
+    };
+  }
+
+  const saveBtn = document.getElementById('save-testimonials');
+  if(saveBtn){
+    saveBtn.onclick = async () => {
+      const ok = await saveTestimonials();
+      renderTestimonialsPublic();
+      const msg = document.getElementById('testimonials-saved-msg');
+      if(msg){
+        msg.style.display = 'inline';
+        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
+        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      }
+    };
+  }
+}
+
+/* ---------- GALÉRIA SZERKESZTŐJE ---------- */
+function renderGalleryEditor(){
+  const host = document.getElementById('gallery-editor');
+  if(!host) return;
+
+  host.innerHTML = GALLERY.map(g => `
+    <div style="border:1px solid var(--line); padding:14px; margin-bottom:10px; display:flex; gap:14px; align-items:flex-start;" data-gallery-row="${g.id}">
+      ${g.url ? `<img src="${g.url.replace(/"/g,'&quot;')}" alt="" style="width:80px; height:80px; object-fit:cover; flex-shrink:0; border:1px solid var(--line);">` : '<div style="width:80px;height:80px;flex-shrink:0;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--cream-dim);font-size:0.6rem;text-align:center;">nincs kép</div>'}
+      <div style="flex:1;">
+        <label>Kép URL</label>
+        <input type="url" data-gallery-field="url" data-gallery="${g.id}" placeholder="https://…" value="${(g.url||'').replace(/"/g,'&quot;')}">
+        <label>Felirat (opcionális)</label>
+        <input type="text" data-gallery-field="caption" data-gallery="${g.id}" placeholder="pl. Tavaszi kóstoló, 2026 április" value="${(g.caption||'').replace(/"/g,'&quot;')}">
+      </div>
+      <button class="btn ghost" data-remove-gallery="${g.id}">✕</button>
+    </div>
+  `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:10px;">Egyelőre nincs kép — adj hozzá egyet lent. A kép URL-jét egy már valahol (pl. Google Drive, Google Fotók) feltöltött, nyilvánosan elérhető képről kell megadnod.</div>';
+
+  host.querySelectorAll('[data-gallery-field]').forEach(input => {
+    input.oninput = () => {
+      const g = GALLERY.find(x => x.id === input.dataset.gallery);
+      if(!g) return;
+      g[input.dataset.galleryField] = input.value;
+    };
+  });
+  host.querySelectorAll('[data-remove-gallery]').forEach(btn => {
+    btn.onclick = () => {
+      GALLERY = GALLERY.filter(g => g.id !== btn.dataset.removeGallery);
+      renderGalleryEditor();
+    };
+  });
+
+  const addBtn = document.getElementById('add-gallery');
+  if(addBtn){
+    addBtn.onclick = () => {
+      GALLERY.push({id: 'gal_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), url:'', caption:''});
+      renderGalleryEditor();
+    };
+  }
+
+  const saveBtn = document.getElementById('save-gallery');
+  if(saveBtn){
+    saveBtn.onclick = async () => {
+      const ok = await saveGallery();
+      renderGalleryPublic();
+      const msg = document.getElementById('gallery-saved-msg');
+      if(msg){
+        msg.style.display = 'inline';
+        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
+        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      }
+    };
+  }
+}
+
+async function submitEventForm(){
+  const date = document.getElementById('ev-date').value;
+  const title = document.getElementById('ev-title').value.trim();
+  const price = Number(document.getElementById('ev-price').value);
+  const capacity = Number(document.getElementById('ev-capacity').value);
+  const description = document.getElementById('ev-desc').value.trim();
+  const image = document.getElementById('ev-image').value.trim();
+  const paymentLink = document.getElementById('ev-paylink').value.trim();
+
+  const errBox = document.getElementById('event-form-error');
+  if(!date || !title || !price || !capacity){
+    errBox.textContent = 'Kérlek töltsd ki a kötelező mezőket (dátum, név, ár, létszám).';
+    errBox.style.display = 'block';
+    return;
+  }
+  errBox.style.display = 'none';
+
+  if(editingEventId){
+    const ev = EVENTS.find(x => x.id === editingEventId);
+    ev.date = date; ev.title = title; ev.price = price; ev.capacity = capacity;
+    ev.description = description; ev.image = image; ev.paymentLink = paymentLink;
+    editingEventId = null;
+  } else {
+    const id = date + '-' + Math.random().toString(36).slice(2,6);
+    EVENTS.push({id, date, title, price, capacity, description, image, paymentLink});
+  }
+  EVENTS.sort((a,b)=> a.date.localeCompare(b.date));
+  await saveEvents();
+  renderAdmin();
+  renderGrid();
+}
+
+function exportCSV(){
+  const header = ['Dátum','Kóstoló','Név','Telefon','Email','Számlázási cím','Adószám','Fő','Extrák','Státusz'];
+  const rows = bookings.map(b => [
+    fmtDate(b.eventDate), b.eventTitle, b.nev, b.telefon, b.email, b.cim || '', b.adoszam || '', b.letszam,
+    (b.addons && b.addons.length) ? b.addons.map(a => a.price ? `${a.label} (+${a.price} Ft)` : a.label).join('; ') : '',
+    b.confirmed ? 'Fizetve' : 'Fizetésre vár'
+  ]);
+  const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(["\uFEFF" + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'kostolo-foglalasok.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('overlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'overlay') closeModal();
+});
+
+/* init */
+(async function init(){
+  await Promise.all([
+    loadEvents(), loadPackages(), loadExtras(), loadBookings(),
+    loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
+  ]);
+  renderGrid();
+  renderAboutPublic();
+  renderTestimonialsPublic();
+  renderGalleryPublic();
+})();
+</script>
+</body>
+</html>
