@@ -1634,13 +1634,13 @@ function openAdminLoginModal(){
   modal.innerHTML = `
     <button class="close-x" id="close-modal">✕</button>
     <h2>Admin belépés</h2>
-    <div class="sub">Add meg a jelszót, utána egy egyszer használatos kódot küldünk emailben.</div>
+    <div class="sub">Add meg a jelszót a foglalások és a naptár kezeléséhez.</div>
     <div id="admin-login-form">
       <label>Jelszó</label>
       <input type="text" id="admin-pw-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security: disc; text-security: disc;">
       <div class="modal-actions">
         <button type="button" class="btn secondary" id="cancel-login">Mégse</button>
-        <button type="button" class="btn" id="do-login">Kód kérése</button>
+        <button type="button" class="btn" id="do-login">Belépés</button>
       </div>
     </div>
   `;
@@ -1654,7 +1654,7 @@ function openAdminLoginModal(){
   const sub = modal.querySelector('.sub');
   const loginBtn = document.getElementById('do-login');
 
-  const requestOtp = async () => {
+  const doLogin = async () => {
     const pw = pwInput.value;
     if(!pw || !pw.trim()){
       sub.textContent = 'Írd be a jelszót a belépéshez.';
@@ -1662,82 +1662,18 @@ function openAdminLoginModal(){
       return;
     }
     loginBtn.disabled = true;
-    loginBtn.textContent = 'Küldés...';
+    loginBtn.textContent = 'Ellenőrzés...';
     sub.style.color = '';
     sub.textContent = 'Ellenőrzés...';
     try{
-      const data = await adminApiCall('admin-login-request', { password: pw });
+      const data = await adminApiCall('admin-login', { password: pw });
       if(!data || !data.ok){
         sub.textContent = 'Hibás jelszó, próbáld újra.';
         sub.style.color = 'var(--wine-bright)';
         loginBtn.disabled = false;
-        loginBtn.textContent = 'Kód kérése';
+        loginBtn.textContent = 'Belépés';
         pwInput.value = '';
         pwInput.focus();
-        return;
-      }
-      openAdminOtpModal();
-    }catch(e){
-      console.error('Admin login hiba:', e);
-      sub.textContent = 'Hálózati hiba, próbáld újra.';
-      sub.style.color = 'var(--wine-bright)';
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Kód kérése';
-    }
-  };
-
-  loginBtn.onclick = requestOtp;
-  pwInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); requestOtp(); } };
-}
-
-function openAdminOtpModal(){
-  const modal = document.getElementById('modal-content');
-  modal.style.maxWidth = '';
-  modal.innerHTML = `
-    <button class="close-x" id="close-modal">✕</button>
-    <h2>Belépési kód</h2>
-    <div class="sub">Kiküldtünk egy 6 jegyű kódot emailben, add meg itt (5 percig érvényes).</div>
-    <div id="admin-otp-form">
-      <label>Kód</label>
-      <input type="text" inputmode="numeric" maxlength="6" id="admin-otp-input">
-      <div class="modal-actions">
-        <button type="button" class="btn secondary" id="back-to-pw">Vissza</button>
-        <button type="button" class="btn" id="do-verify">Belépés</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('close-modal').onclick = closeModal;
-  document.getElementById('back-to-pw').onclick = openAdminLoginModal;
-
-  const otpInput = document.getElementById('admin-otp-input');
-  otpInput.focus();
-
-  const sub = modal.querySelector('.sub');
-  const verifyBtn = document.getElementById('do-verify');
-
-  const doVerify = async () => {
-    const otp = otpInput.value.trim();
-    if(!otp){
-      sub.textContent = 'Írd be a kódot a belépéshez.';
-      sub.style.color = 'var(--wine-bright)';
-      return;
-    }
-    verifyBtn.disabled = true;
-    verifyBtn.textContent = 'Ellenőrzés...';
-    try{
-      const data = await adminApiCall('admin-login-verify', { otp });
-      if(!data || !data.ok){
-        const messages = {
-          'wrong-otp': 'Hibás kód, próbáld újra.',
-          'expired': 'Lejárt a kód, kérj újat.',
-          'too-many-attempts': 'Túl sok próbálkozás, kérj új kódot.'
-        };
-        sub.textContent = messages[data && data.error] || 'Hibás kód, próbáld újra.';
-        sub.style.color = 'var(--wine-bright)';
-        verifyBtn.disabled = false;
-        verifyBtn.textContent = 'Belépés';
-        otpInput.value = '';
-        otpInput.focus();
         return;
       }
       closeModal();
@@ -1749,16 +1685,16 @@ function openAdminOtpModal(){
       ]);
       renderAdmin();
     }catch(e){
-      console.error('OTP ellenőrzés hiba:', e);
+      console.error('Admin login hiba:', e);
       sub.textContent = 'Hálózati hiba, próbáld újra.';
       sub.style.color = 'var(--wine-bright)';
-      verifyBtn.disabled = false;
-      verifyBtn.textContent = 'Belépés';
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Belépés';
     }
   };
 
-  verifyBtn.onclick = doVerify;
-  otpInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); doVerify(); } };
+  loginBtn.onclick = doLogin;
+  pwInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); doLogin(); } };
 }
 
 let editingEventId = null; // ha nem null, épp egy meglévő eseményt szerkesztünk
