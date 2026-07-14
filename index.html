@@ -279,6 +279,15 @@
   }
   input:focus, select:focus{ outline:none; border-color: var(--gold); }
   .modal-actions{ display:flex; gap:10px; margin-top:26px; }
+  .save-toast{
+    position:fixed; left:50%; bottom:28px; transform:translate(-50%, 20px);
+    background:#161209; border:1px solid var(--gold-bright); color:var(--cream);
+    padding:12px 20px; border-radius:8px; font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem; letter-spacing:0.3px; box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    z-index:200; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+  }
+  .save-toast.error{ border-color: var(--mark-red); }
+  .save-toast.show{ opacity:1; transform:translate(-50%, 0); }
   .close-x{
     position:absolute; top:18px; right:20px; background:none; border:none; color:var(--cream-dim);
     font-size:1.3rem; cursor:pointer; line-height:1; font-family:'Jost',sans-serif;
@@ -1075,7 +1084,8 @@ function renderGalleryPublic(){
   });
 }
 
-const ADMIN_PASSWORD = "VialtumesGallai20251107"; // ide írjátok a saját jelszavatokat, ha szeretnétek megváltoztatni
+// Az admin jelszó mostantól NEM a kódban van, hanem az Apps Script projekt
+// Script Properties beállításánál (ADMIN_PASSWORD kulcs) — ld. apps-script-code.gs.
 const NOTIFY_EMAIL = "vialtumwines@gmail.com";
 const BANK_ACCOUNT_NAME = "IDE ÍRD A SZÁMLATULAJDONOS NEVÉT"; // pl. Vialtum Pince Kft.
 const BANK_ACCOUNT_NUMBER = "IDE ÍRD A BANKSZÁMLASZÁMOT"; // pl. 12345678-12345678-12345678
@@ -1446,6 +1456,22 @@ function closeModal(){
   document.getElementById('overlay').classList.remove('open');
 }
 
+let saveToastTimer = null;
+function showSaveToast(ok, okMsg, errMsg){
+  let toast = document.getElementById('save-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'save-toast';
+    toast.className = 'save-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = ok ? (okMsg || 'Mentve ✓') : (errMsg || 'Hiba a mentéskor, próbáld újra.');
+  toast.classList.toggle('error', !ok);
+  toast.classList.add('show');
+  clearTimeout(saveToastTimer);
+  saveToastTimer = setTimeout(() => { toast.classList.remove('show'); }, 2500);
+}
+
 function openEventDetailsModal(eventId){
   const ev = EVENTS.find(e => e.id === eventId);
   if(!ev) return;
@@ -1593,19 +1619,28 @@ document.getElementById('admin-toggle').addEventListener('click', async () => {
   openAdminLoginModal();
 });
 
+async function adminApiCall(action, extra){
+  const res = await fetch(SHEETS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...extra })
+  });
+  return await res.json();
+}
+
 function openAdminLoginModal(){
   const modal = document.getElementById('modal-content');
   modal.style.maxWidth = '';
   modal.innerHTML = `
     <button class="close-x" id="close-modal">✕</button>
     <h2>Admin belépés</h2>
-    <div class="sub">Add meg a jelszót a foglalások és a naptár kezeléséhez.</div>
+    <div class="sub">Add meg a jelszót, utána egy egyszer használatos kódot küldünk emailben.</div>
     <div id="admin-login-form">
       <label>Jelszó</label>
-      <input type="password" id="admin-pw-input">
+      <input type="text" id="admin-pw-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security: disc; text-security: disc;">
       <div class="modal-actions">
         <button type="button" class="btn secondary" id="cancel-login">Mégse</button>
-        <button type="button" class="btn" id="do-login">Belépés</button>
+        <button type="button" class="btn" id="do-login">Kód kérése</button>
       </div>
     </div>
   `;
@@ -1616,32 +1651,114 @@ function openAdminLoginModal(){
   const pwInput = document.getElementById('admin-pw-input');
   pwInput.focus();
 
-  const doLogin = async () => {
+  const sub = modal.querySelector('.sub');
+  const loginBtn = document.getElementById('do-login');
+
+  const requestOtp = async () => {
     const pw = pwInput.value;
-    const sub = modal.querySelector('.sub');
     if(!pw || !pw.trim()){
       sub.textContent = 'Írd be a jelszót a belépéshez.';
       sub.style.color = 'var(--wine-bright)';
       return;
     }
-    if(pw !== ADMIN_PASSWORD){
-      sub.textContent = 'Hibás jelszó, próbáld újra.';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Küldés...';
+    sub.style.color = '';
+    sub.textContent = 'Ellenőrzés...';
+    try{
+      const data = await adminApiCall('admin-login-request', { password: pw });
+      if(!data || !data.ok){
+        sub.textContent = 'Hibás jelszó, próbáld újra.';
+        sub.style.color = 'var(--wine-bright)';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Kód kérése';
+        pwInput.value = '';
+        pwInput.focus();
+        return;
+      }
+      openAdminOtpModal();
+    }catch(e){
+      console.error('Admin login hiba:', e);
+      sub.textContent = 'Hálózati hiba, próbáld újra.';
       sub.style.color = 'var(--wine-bright)';
-      pwInput.value = '';
-      return;
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Kód kérése';
     }
-    closeModal();
-    adminOpen = true;
-    document.getElementById('admin-toggle').textContent = 'Admin bezárása';
-    await Promise.all([
-      loadEvents(), loadPackages(), loadExtras(), loadBookings(),
-      loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
-    ]);
-    renderAdmin();
   };
 
-  document.getElementById('do-login').onclick = doLogin;
-  pwInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); doLogin(); } };
+  loginBtn.onclick = requestOtp;
+  pwInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); requestOtp(); } };
+}
+
+function openAdminOtpModal(){
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '';
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>Belépési kód</h2>
+    <div class="sub">Kiküldtünk egy 6 jegyű kódot emailben, add meg itt (5 percig érvényes).</div>
+    <div id="admin-otp-form">
+      <label>Kód</label>
+      <input type="text" inputmode="numeric" maxlength="6" id="admin-otp-input">
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" id="back-to-pw">Vissza</button>
+        <button type="button" class="btn" id="do-verify">Belépés</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('close-modal').onclick = closeModal;
+  document.getElementById('back-to-pw').onclick = openAdminLoginModal;
+
+  const otpInput = document.getElementById('admin-otp-input');
+  otpInput.focus();
+
+  const sub = modal.querySelector('.sub');
+  const verifyBtn = document.getElementById('do-verify');
+
+  const doVerify = async () => {
+    const otp = otpInput.value.trim();
+    if(!otp){
+      sub.textContent = 'Írd be a kódot a belépéshez.';
+      sub.style.color = 'var(--wine-bright)';
+      return;
+    }
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Ellenőrzés...';
+    try{
+      const data = await adminApiCall('admin-login-verify', { otp });
+      if(!data || !data.ok){
+        const messages = {
+          'wrong-otp': 'Hibás kód, próbáld újra.',
+          'expired': 'Lejárt a kód, kérj újat.',
+          'too-many-attempts': 'Túl sok próbálkozás, kérj új kódot.'
+        };
+        sub.textContent = messages[data && data.error] || 'Hibás kód, próbáld újra.';
+        sub.style.color = 'var(--wine-bright)';
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Belépés';
+        otpInput.value = '';
+        otpInput.focus();
+        return;
+      }
+      closeModal();
+      adminOpen = true;
+      document.getElementById('admin-toggle').textContent = 'Admin bezárása';
+      await Promise.all([
+        loadEvents(), loadPackages(), loadExtras(), loadBookings(),
+        loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
+      ]);
+      renderAdmin();
+    }catch(e){
+      console.error('OTP ellenőrzés hiba:', e);
+      sub.textContent = 'Hálózati hiba, próbáld újra.';
+      sub.style.color = 'var(--wine-bright)';
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Belépés';
+    }
+  };
+
+  verifyBtn.onclick = doVerify;
+  otpInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); doVerify(); } };
 }
 
 let editingEventId = null; // ha nem null, épp egy meglévő eseményt szerkesztünk
@@ -1846,7 +1963,8 @@ function renderAdmin(){
       btn.onclick = async () => {
         const b = bookings.find(x => x.id === btn.dataset.confirmBooking);
         b.confirmed = !b.confirmed;
-        await saveBookings();
+        const ok = await saveBookings();
+        showSaveToast(ok);
         renderAdmin();
       };
     });
@@ -1886,7 +2004,8 @@ Vialtum Pince, Dunaföldvár`);
           `${b.nev} — "${b.eventTitle}" (${fmtDate(b.eventDate)}), ${b.letszam} fő`,
           async () => {
             bookings = bookings.filter(x => x.id !== b.id);
-            await saveBookings();
+            const ok = await saveBookings();
+            showSaveToast(ok);
             renderAdmin();
             renderGrid();
           }
@@ -1913,7 +2032,8 @@ Vialtum Pince, Dunaföldvár`);
           `"${ev.title}" (${fmtDate(ev.date)})${warn}`,
           async () => {
             EVENTS = EVENTS.filter(e => e.id !== ev.id);
-            await saveEvents();
+            const ok = await saveEvents();
+            showSaveToast(ok);
             renderAdmin();
             renderGrid();
           }
@@ -2255,7 +2375,8 @@ async function submitEventForm(){
     EVENTS.push({id, date, title, price, capacity, description, image, paymentLink});
   }
   EVENTS.sort((a,b)=> a.date.localeCompare(b.date));
-  await saveEvents();
+  const ok = await saveEvents();
+  showSaveToast(ok);
   renderAdmin();
   renderGrid();
 }
