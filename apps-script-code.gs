@@ -28,6 +28,12 @@ function jsonOut(obj){
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function getKvValue(sheet, key){
+  const row = findRow(sheet, key);
+  if(row === -1) return null;
+  return sheet.getRange(row,2).getValue();
+}
+
 function doGet(e){
   const key = e.parameter.key;
   const sheet = getSheet();
@@ -47,6 +53,9 @@ function doPost(e){
 
   if(body.action === 'admin-login'){
     return handleAdminLogin(body.password);
+  }
+  if(body.action === 'notify-new-booking'){
+    return handleNotifyNewBooking(body.bookingId);
   }
 
   const key = body.key;
@@ -73,4 +82,43 @@ function handleAdminLogin(password){
     return jsonOut({ok:false, error:'wrong-password'});
   }
   return jsonOut({ok:true});
+}
+
+function handleNotifyNewBooking(bookingId){
+  try{
+    const sheet = getSheet();
+
+    const settingsRaw = getKvValue(sheet, 'kostolo-ertesites-beallitasok');
+    const settings = settingsRaw ? JSON.parse(settingsRaw) : null;
+    if(!settings || !settings.enabled || !settings.email){
+      return jsonOut({ok:true, skipped:true});
+    }
+
+    const bookingsRaw = getKvValue(sheet, 'kostolo-foglalasok');
+    const bookings = bookingsRaw ? JSON.parse(bookingsRaw) : [];
+    const booking = bookings.find(function(b){ return b.id === bookingId; });
+    if(!booking){
+      return jsonOut({ok:false, error:'booking-not-found'});
+    }
+
+    const subject = 'Új foglalás – ' + booking.eventTitle + ' (' + booking.eventDate + ')';
+    const lines = [
+      'Új foglalás érkezett a weboldalról:',
+      '',
+      'Kóstoló/csomag: ' + booking.eventTitle,
+      'Dátum: ' + booking.eventDate + (booking.idopont ? ', ' + booking.idopont : ''),
+      'Név: ' + booking.nev,
+      'Telefon: ' + booking.telefon,
+      'Email: ' + booking.email,
+      'Létszám: ' + booking.letszam + ' fő'
+    ];
+    if(booking.addons && booking.addons.length){
+      lines.push('Extrák: ' + booking.addons.map(function(a){ return a.label; }).join(', '));
+    }
+
+    MailApp.sendEmail(settings.email, subject, lines.join('\n'));
+    return jsonOut({ok:true});
+  }catch(e){
+    return jsonOut({ok:false, error:'send-failed'});
+  }
 }

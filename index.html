@@ -913,6 +913,32 @@ async function savePrivateHours(){
   }
 }
 
+/* ---------- ÚJ FOGLALÁS ÉRTESÍTÉSI BEÁLLÍTÁSOK ---------- */
+const DEFAULT_NOTIFICATION_SETTINGS = { enabled: true, email: 'vialtumwines@gmail.com' };
+let NOTIFICATION_SETTINGS = { ...DEFAULT_NOTIFICATION_SETTINGS };
+
+async function loadNotificationSettings(){
+  try{
+    const res = await sheetsStorage.get('kostolo-ertesites-beallitasok');
+    if(res && res.value){
+      NOTIFICATION_SETTINGS = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){ /* nincs még mentve */ }
+  NOTIFICATION_SETTINGS = { ...DEFAULT_NOTIFICATION_SETTINGS };
+  await saveNotificationSettings();
+}
+
+async function saveNotificationSettings(){
+  try{
+    const res = await sheetsStorage.set('kostolo-ertesites-beallitasok', JSON.stringify(NOTIFICATION_SETTINGS));
+    return !!res;
+  }catch(e){
+    console.error('Értesítési beállítás mentési hiba:', e);
+    return false;
+  }
+}
+
 function generateTimeSlots(){
   const [startH] = PRIVATE_HOURS.start.split(':').map(Number);
   const [endH] = PRIVATE_HOURS.end.split(':').map(Number);
@@ -1564,6 +1590,10 @@ async function submitBooking(ev){
     return;
   }
 
+  adminApiCall('notify-new-booking', { bookingId: booking.id }).catch(e => {
+    console.error('Értesítés-küldési hiba (a foglalás ettől még sikeres):', e);
+  });
+
   showSuccess(booking, ev);
   renderGrid();
 }
@@ -1681,7 +1711,8 @@ function openAdminLoginModal(){
       document.getElementById('admin-toggle').textContent = 'Admin bezárása';
       await Promise.all([
         loadEvents(), loadPackages(), loadExtras(), loadBookings(),
-        loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
+        loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours(),
+        loadNotificationSettings()
       ]);
       renderAdmin();
     }catch(e){
@@ -1708,6 +1739,7 @@ const ADMIN_TABS = [
   {id:'rolunk', label:'Rólunk'},
   {id:'velemenyek', label:'Vélemények'},
   {id:'galeria', label:'Galéria'},
+  {id:'ertesitesek', label:'Értesítések'},
 ];
 
 function renderAdmin(){
@@ -1865,6 +1897,12 @@ function renderAdmin(){
     </div>
   `;
 
+  const ertesitesekHTML = `
+    <h3 style="margin-top:0;">Értesítés új foglalásról</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Ha be van kapcsolva, minden új foglalásról (meghirdetett kóstoló és egyéni csomag is) automatikusan email érkezik a megadott címre — ha a telefonodon be van kapcsolva a Gmail-értesítés, ez ott is azonnal megjelenik.</div>
+    <div id="notifications-editor"></div>
+  `;
+
   const tabContent = {
     foglalasok: foglalasokHTML,
     kostolok: kostolokHTML,
@@ -1873,6 +1911,7 @@ function renderAdmin(){
     rolunk: rolunkHTML,
     velemenyek: velemenyekHTML,
     galeria: galeriaHTML,
+    ertesitesek: ertesitesekHTML,
   }[adminTab];
 
   panel.innerHTML = `
@@ -1885,7 +1924,8 @@ function renderAdmin(){
   document.getElementById('refresh-admin').onclick = async () => {
     await Promise.all([
       loadEvents(), loadPackages(), loadExtras(), loadBookings(),
-      loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours()
+      loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours(),
+      loadNotificationSettings()
     ]);
     renderAdmin(); renderGrid(); renderAboutPublic(); renderTestimonialsPublic(); renderGalleryPublic();
   };
@@ -1997,6 +2037,7 @@ Vialtum Pince, Dunaföldvár`);
   if(adminTab === 'rolunk') renderAboutEditor();
   if(adminTab === 'velemenyek') renderTestimonialsEditor();
   if(adminTab === 'galeria') renderGalleryEditor();
+  if(adminTab === 'ertesitesek') renderNotificationsEditor();
 }
 
 function openConfirmModal(title, message, onConfirm){
@@ -2171,6 +2212,31 @@ function renderAboutEditor(){
       msg.style.color = (ok1 && ok2) ? 'var(--gold-bright)' : 'var(--mark-red)';
       setTimeout(() => { msg.style.display = 'none'; }, 2500);
     }
+  };
+}
+
+/* ---------- ÉRTESÍTÉSI BEÁLLÍTÁSOK SZERKESZTŐJE ---------- */
+function renderNotificationsEditor(){
+  const host = document.getElementById('notifications-editor');
+  if(!host) return;
+  host.innerHTML = `
+    <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+      <input type="checkbox" id="notify-enabled-input" style="width:auto;" ${NOTIFICATION_SETTINGS.enabled ? 'checked' : ''}>
+      Email értesítés bekapcsolva
+    </label>
+    <label style="margin-top:16px;">Értesítési email cím</label>
+    <input type="email" id="notify-email-input" placeholder="pl. vialtumwines@gmail.com" value="${(NOTIFICATION_SETTINGS.email||'').replace(/"/g,'&quot;')}">
+    <div class="row-actions">
+      <button class="btn" id="save-notifications">Mentés</button>
+    </div>
+  `;
+  document.getElementById('save-notifications').onclick = async () => {
+    NOTIFICATION_SETTINGS = {
+      enabled: document.getElementById('notify-enabled-input').checked,
+      email: document.getElementById('notify-email-input').value.trim()
+    };
+    const ok = await saveNotificationSettings();
+    showSaveToast(ok);
   };
 }
 
