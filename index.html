@@ -499,6 +499,17 @@
   .quote-mark{ font-family:'Fraunces', serif; font-size:2.4rem; color:var(--gold); line-height:1; }
   .testimonial-card p{ color:var(--cream-dim); font-size:0.92rem; line-height:1.65; font-weight:300; font-style:italic; margin:0; }
   .testimonial-author{ font-family:'IBM Plex Mono', monospace; font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--gold); }
+  .testimonial-rating{ color:var(--gold-bright); font-family:'IBM Plex Mono', monospace; font-size:0.85rem; letter-spacing:1px; }
+  .testimonial-rating .mono{ color:var(--cream-dim); margin-left:4px; }
+  .star-picker{ display:flex; gap:4px; }
+  .star-picker .star{ cursor:pointer; font-size:1.35rem; line-height:1; color:var(--line); transition: color .12s ease; user-select:none; }
+  .star-picker .star.filled{ color:var(--gold-bright); }
+  .aspect-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:12px; }
+  .aspect-row label{ margin:0; }
+  .pending-badge{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.5px; text-transform:uppercase;
+    color:var(--wine-bright); border:1px solid var(--wine); padding:3px 9px; margin-bottom:10px;
+  }
 
   /* GALLERY */
   .gallery-grid{
@@ -653,6 +664,9 @@
   <h2>Rólunk mondták</h2>
   <div class="testimonial-grid" id="testimonials-grid">
     <div class="loading">Vélemények betöltése…</div>
+  </div>
+  <div style="text-align:center; margin-top:-16px; margin-bottom:40px;">
+    <button class="btn secondary" id="write-review-btn">Írj véleményt</button>
   </div>
 </div>
 
@@ -1052,6 +1066,51 @@ async function saveTestimonials(){
   }
 }
 
+const RATING_ASPECTS = [
+  {key:'kiszolgalas', label:'Kiszolgálás'},
+  {key:'szinvonal', label:'Színvonal'},
+  {key:'elmeny', label:'Élmény'},
+  {key:'borok', label:'Borok minősége'},
+  {key:'helyszin', label:'Helyszín'}
+];
+
+function isApprovedTestimonial(t){
+  return t.approved !== false;
+}
+
+function avgRating(ratings){
+  if(!ratings) return null;
+  const vals = RATING_ASPECTS.map(a => ratings[a.key]).filter(v => typeof v === 'number' && v > 0);
+  if(!vals.length) return null;
+  return vals.reduce((a,b)=>a+b,0) / vals.length;
+}
+
+function ratingStarsDisplay(avg){
+  if(avg == null) return '';
+  const rounded = Math.round(avg);
+  const stars = Array.from({length:5}, (_,i) => i < rounded ? '★' : '☆').join('');
+  return `<div class="testimonial-rating">${stars}<span class="mono">${avg.toFixed(1)}</span></div>`;
+}
+
+function starsHTML(groupId, value){
+  return Array.from({length:5}, (_, i) => {
+    const n = i + 1;
+    return `<span class="star ${n <= value ? 'filled' : ''}" data-star-group="${groupId}" data-star-value="${n}">★</span>`;
+  }).join('');
+}
+
+function wireStarPicker(host, groupId, onChange){
+  host.querySelectorAll(`[data-star-group="${groupId}"]`).forEach(star => {
+    star.onclick = () => {
+      const val = Number(star.dataset.starValue);
+      onChange(val);
+      host.querySelectorAll(`[data-star-group="${groupId}"]`).forEach(s => {
+        s.classList.toggle('filled', Number(s.dataset.starValue) <= val);
+      });
+    };
+  });
+}
+
 /* ---------- GALÉRIA (korábbi események képei) ---------- */
 const DEFAULT_GALLERY = [];
 let GALLERY = [];
@@ -1099,18 +1158,109 @@ function renderAboutPublic(){
 function renderTestimonialsPublic(){
   const host = document.getElementById('testimonials-grid');
   if(!host) return;
-  if(!TESTIMONIALS.length){
+  const approved = TESTIMONIALS.filter(isApprovedTestimonial);
+  if(!approved.length){
     host.innerHTML = '<div class="empty-note">Hamarosan itt olvashatók vendégeink visszajelzései.</div>';
     return;
   }
-  host.innerHTML = TESTIMONIALS.map(t => `
+  host.innerHTML = approved.map(t => `
     <div class="testimonial-card">
       <div class="quote-mark">”</div>
+      ${ratingStarsDisplay(avgRating(t.ratings))}
       <p>${(t.quote||'').replace(/</g,'&lt;')}</p>
-      <div class="testimonial-author">${(t.author||'').replace(/</g,'&lt;')}</div>
+      <div class="testimonial-author">${t.anonymous ? 'Anonim vendég' : (t.author||'').replace(/</g,'&lt;')}</div>
     </div>
   `).join('');
 }
+
+function openWriteReviewModal(){
+  const modal = document.getElementById('modal-content');
+  modal.style.maxWidth = '560px';
+  const ratingsState = {};
+
+  modal.innerHTML = `
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>Írj véleményt</h2>
+    <div class="sub">Oszd meg élményed a Vialtum Pincéről — jóváhagyás után jelenik meg az oldalon.</div>
+    <label>Neved</label>
+    <input type="text" id="review-author-input" placeholder="pl. Kovács Anna">
+    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-top:10px;">
+      <input type="checkbox" id="review-anonymous-input" style="width:auto;">
+      Inkább anonim maradnék — a nevem ne jelenjen meg nyilvánosan
+    </label>
+    ${RATING_ASPECTS.map(a => `
+      <div class="aspect-row">
+        <label>${a.label}</label>
+        <div class="star-picker" id="stars-${a.key}">${starsHTML(a.key, 0)}</div>
+      </div>
+    `).join('')}
+    <label style="margin-top:16px;">Véleményed</label>
+    <textarea id="review-quote-input" rows="4" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;" placeholder="Mesélj a látogatásodról…"></textarea>
+    <div id="review-form-error" style="display:none; margin-top:14px; padding:10px 12px; background:rgba(140,47,57,0.15); border:1px solid var(--wine); border-radius:8px; font-size:0.85rem; color:var(--cream);"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn secondary" id="cancel-review">Mégse</button>
+      <button type="button" class="btn" id="submit-review">Küldés</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('close-modal').onclick = closeModal;
+  document.getElementById('cancel-review').onclick = closeModal;
+
+  RATING_ASPECTS.forEach(a => {
+    ratingsState[a.key] = 0;
+    wireStarPicker(document.getElementById(`stars-${a.key}`), a.key, (val) => { ratingsState[a.key] = val; });
+  });
+
+  document.getElementById('submit-review').onclick = async () => {
+    const author = document.getElementById('review-author-input').value.trim();
+    const anonymous = document.getElementById('review-anonymous-input').checked;
+    const quote = document.getElementById('review-quote-input').value.trim();
+    const errBox = document.getElementById('review-form-error');
+    const missingRating = RATING_ASPECTS.some(a => !ratingsState[a.key]);
+
+    if((!anonymous && !author) || !quote || missingRating){
+      errBox.textContent = anonymous
+        ? 'Kérlek add meg a véleményed, és értékeld mind az 5 szempontot.'
+        : 'Kérlek add meg a neved (vagy jelöld az anonim opciót), a véleményed, és értékeld mind az 5 szempontot.';
+      errBox.style.display = 'block';
+      return;
+    }
+    errBox.style.display = 'none';
+
+    const btn = document.getElementById('submit-review');
+    btn.disabled = true;
+    btn.textContent = 'Küldés…';
+
+    await loadTestimonials();
+    TESTIMONIALS.push({
+      id: 'testi_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      quote, author, anonymous,
+      ratings: { ...ratingsState },
+      approved: false
+    });
+    const ok = await saveTestimonials();
+
+    if(!ok){
+      errBox.textContent = 'Hiba történt a küldés közben, kérlek próbáld újra.';
+      errBox.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Küldés';
+      return;
+    }
+
+    modal.innerHTML = `
+      <button class="close-x" id="close-modal">✕</button>
+      <div class="success-box">
+        <div class="check">🍷</div>
+        <h2>Köszönjük!</h2>
+        <p>A véleményed jóváhagyás után jelenik meg az oldalon.</p>
+      </div>
+    `;
+    document.getElementById('close-modal').onclick = closeModal;
+  };
+}
+
+document.getElementById('write-review-btn').addEventListener('click', openWriteReviewModal);
 
 function renderGalleryPublic(){
   const host = document.getElementById('gallery-grid');
@@ -2304,11 +2454,25 @@ function renderTestimonialsEditor(){
 
   host.innerHTML = TESTIMONIALS.map(t => `
     <div style="border:1px solid var(--line); padding:14px; margin-bottom:10px;" data-testi-row="${t.id}">
+      ${!isApprovedTestimonial(t) ? '<div class="pending-badge">Jóváhagyásra vár</div>' : ''}
       <label>Idézet</label>
       <textarea data-testi-field="quote" data-testi="${t.id}" rows="2" placeholder="pl. Fantasztikus élmény volt, remek borokkal!" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;">${(t.quote||'').replace(/</g,'&lt;')}</textarea>
       <div style="display:flex; gap:8px; align-items:center; margin-top:10px;">
         <input type="text" data-testi-field="author" data-testi="${t.id}" placeholder="Név (pl. Kovács Anna)" style="flex:1;" value="${(t.author||'').replace(/"/g,'&quot;')}">
-        <button class="btn ghost" data-remove-testi="${t.id}">✕</button>
+      </div>
+      <label style="display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer;">
+        <input type="checkbox" data-testi-anon="${t.id}" style="width:auto;" ${t.anonymous ? 'checked' : ''}>
+        Anonim (a név nem jelenik meg nyilvánosan, csak itt az adminban)
+      </label>
+      ${RATING_ASPECTS.map(a => `
+        <div class="aspect-row">
+          <label>${a.label}</label>
+          <div class="star-picker" id="testi-stars-${t.id}-${a.key}">${starsHTML(`${t.id}-${a.key}`, (t.ratings && t.ratings[a.key]) || 0)}</div>
+        </div>
+      `).join('')}
+      <div class="row-actions" style="margin-top:14px;">
+        ${!isApprovedTestimonial(t) ? `<button class="btn secondary" data-approve-testi="${t.id}">Jóváhagyás</button>` : ''}
+        <button class="btn ghost" data-remove-testi="${t.id}">Törlés</button>
       </div>
     </div>
   `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:10px;">Egyelőre nincs vélemény — adj hozzá egyet lent.</div>';
@@ -2320,17 +2484,49 @@ function renderTestimonialsEditor(){
       t[input.dataset.testiField] = input.value;
     };
   });
+  host.querySelectorAll('[data-testi-anon]').forEach(cb => {
+    cb.onchange = () => {
+      const t = TESTIMONIALS.find(x => x.id === cb.dataset.testiAnon);
+      if(!t) return;
+      t.anonymous = cb.checked;
+    };
+  });
+  TESTIMONIALS.forEach(t => {
+    if(!t.ratings) t.ratings = {};
+    RATING_ASPECTS.forEach(a => {
+      const groupId = `${t.id}-${a.key}`;
+      const starHost = document.getElementById(`testi-stars-${t.id}-${a.key}`);
+      if(starHost){
+        wireStarPicker(starHost, groupId, (val) => { t.ratings[a.key] = val; });
+      }
+    });
+  });
   host.querySelectorAll('[data-remove-testi]').forEach(btn => {
     btn.onclick = () => {
       TESTIMONIALS = TESTIMONIALS.filter(t => t.id !== btn.dataset.removeTesti);
       renderTestimonialsEditor();
     };
   });
+  host.querySelectorAll('[data-approve-testi]').forEach(btn => {
+    btn.onclick = async () => {
+      const t = TESTIMONIALS.find(x => x.id === btn.dataset.approveTesti);
+      if(!t) return;
+      t.approved = true;
+      const ok = await saveTestimonials();
+      showSaveToast(ok);
+      renderTestimonialsEditor();
+      renderTestimonialsPublic();
+    };
+  });
 
   const addBtn = document.getElementById('add-testimonial');
   if(addBtn){
     addBtn.onclick = () => {
-      TESTIMONIALS.push({id: 'testi_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), quote:'', author:''});
+      TESTIMONIALS.push({
+        id: 'testi_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        quote:'', author:'', approved: true,
+        ratings: {kiszolgalas:5, szinvonal:5, elmeny:5, borok:5, helyszin:5}
+      });
       renderTestimonialsEditor();
     };
   }
