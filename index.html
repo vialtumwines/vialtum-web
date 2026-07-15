@@ -374,6 +374,10 @@
   .tab:hover:not(.active){ color: var(--gold); }
 
   /* CALENDAR */
+  .cal-hint{
+    text-align:center; max-width:520px; margin:26px auto 0; color:var(--cream-dim);
+    font-family:'Jost',sans-serif; font-size:0.85rem; line-height:1.6;
+  }
   .cal-header{
     display:flex; align-items:center; justify-content:center; gap:26px; margin: 34px 0 22px;
   }
@@ -592,6 +596,7 @@
   <div class="view-toggle">
     <button class="tab active" id="tab-grid">Kártyanézet</button>
     <button class="tab" id="tab-calendar">Naptárnézet</button>
+    <button class="tab" id="tab-packages">Privát kóstolók</button>
   </div>
 </div>
 
@@ -601,6 +606,7 @@
   </div>
 
   <div id="calendar-view" style="display:none;">
+    <div class="cal-hint">💡 Azokra a napokra is kattinthatsz, amikor nincs meghirdetett kóstoló — ott egyéni (privát) csomagot foglalhatsz.</div>
     <div class="cal-header">
       <button class="cal-nav-btn" id="cal-prev">‹</button>
       <div class="cal-month-label" id="cal-month-label">–</div>
@@ -613,6 +619,8 @@
       <div class="cal-grid" id="cal-grid"></div>
     </div>
   </div>
+
+  <div id="packages-view" style="display:none;"></div>
 
   <div style="text-align:center; margin-top:10px;">
     <button class="btn ghost" id="admin-toggle">Admin belépés</button>
@@ -1213,17 +1221,54 @@ let calYear, calMonth;
 
 document.getElementById('tab-grid').addEventListener('click', () => switchView('grid'));
 document.getElementById('tab-calendar').addEventListener('click', () => switchView('calendar'));
+document.getElementById('tab-packages').addEventListener('click', () => switchView('packages'));
 
 function switchView(view){
   currentView = view;
   document.getElementById('grid').style.display = view === 'grid' ? 'grid' : 'none';
   document.getElementById('calendar-view').style.display = view === 'calendar' ? 'block' : 'none';
+  document.getElementById('packages-view').style.display = view === 'packages' ? 'block' : 'none';
   document.getElementById('tab-grid').classList.toggle('active', view === 'grid');
   document.getElementById('tab-calendar').classList.toggle('active', view === 'calendar');
+  document.getElementById('tab-packages').classList.toggle('active', view === 'packages');
   if(view === 'calendar'){
     if(calYear === undefined) initCalendarDate();
     renderCalendar();
   }
+  if(view === 'packages'){
+    renderPackagesBrowseView();
+  }
+}
+
+function renderPackagesBrowseView(){
+  const host = document.getElementById('packages-view');
+  const darkBg = '#241016', darkText = '#f3e9dd', darkSub = '#c4b3a8';
+  const lightBg = '#e0b563', lightText = '#211407', lightSub = '#4a3418';
+
+  host.innerHTML = `
+    <div class="cal-hint" style="margin-top:0 0 26px;">Ha egy napon nincs meghirdetett kóstoló, ezek közül az egyéni csomagok közül választhatsz. A foglaláshoz ugorj a Naptárnézetre, és kattints egy üres napra.</div>
+    <div class="pkg-tile-grid">
+      ${PACKAGES.map((p, i) => {
+        const row = Math.floor(i / 2), col = i % 2;
+        const isDark = (row + col) % 2 === 0;
+        const bg = isDark ? darkBg : lightBg;
+        const text = isDark ? darkText : lightText;
+        const sub = isDark ? darkSub : lightSub;
+        return `
+        <div class="pkg-tile" style="background:${bg}; color:${text}; cursor:default;">
+          <span style="font-family:'Fraunces',serif; font-size:1.05rem; color:${text};">${p.title}</span>
+          <span style="font-size:0.8rem; color:${sub}; font-family:'Jost',sans-serif; line-height:1.5;">${p.description}</span>
+          ${p.minGroup && p.minGroup > 1 ? `<span class="mono" style="color:${sub}; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px;">Min. ${p.minGroup} fő</span>` : ''}
+          <span class="mono" style="color:${text}; font-size:0.8rem; font-weight:600; margin-top:auto;">${fmtPrice(p.price)}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="text-align:center; margin-top:30px;">
+      <button class="btn" id="packages-go-to-calendar">Ugrás a naptárhoz</button>
+    </div>
+  `;
+
+  document.getElementById('packages-go-to-calendar').onclick = () => switchView('calendar');
 }
 
 function initCalendarDate(){
