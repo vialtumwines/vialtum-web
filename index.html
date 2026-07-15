@@ -515,9 +515,20 @@
 
   /* MAP */
   .map-frame{
-    border:1px solid var(--line); aspect-ratio: 16/7; overflow:hidden; margin-bottom: 40px;
+    position:relative; border:1px solid var(--gold-dim); aspect-ratio: 16/7; overflow:hidden; margin-bottom: 40px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
   }
-  .map-frame iframe{ width:100%; height:100%; border:0; filter: grayscale(0.3) brightness(0.92) contrast(1.05); }
+  .map-frame iframe{
+    width:100%; height:100%; border:0;
+    filter: invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.85) saturate(0.4);
+  }
+  .map-badge{
+    position:absolute; left:18px; bottom:18px; z-index:2;
+    background: rgba(13,12,7,0.88); border:1px solid var(--gold-dim);
+    padding:10px 16px; pointer-events:none;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gold-bright);
+  }
 
   /* AGE GATE */
   .vp-entry{
@@ -658,6 +669,7 @@
   <h2>Helyszín</h2>
   <div class="map-frame">
     <iframe id="map-iframe" src="https://www.google.com/maps?q=VIALTUM+PINCE,+Dunaf%C3%B6ldv%C3%A1r&z=17&output=embed" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="map-badge">Vialtum Pince</div>
   </div>
   <div style="text-align:center; margin-bottom:40px;">
     <a class="btn secondary" style="text-decoration:none; display:inline-block;" href="https://www.google.com/maps/place/VIALTUM+PINCE/@46.814408,18.9194054,17z/data=!3m1!4b1!4m6!3m5!1s0x47423f00458ed37f:0x688c56fc0382d096!8m2!3d46.814408!4d18.9219803!16s%2Fg%2F11ynlhp0fh?authuser=0&entry=ttu" target="_blank" rel="noopener">Útvonaltervezés megnyitása</a>
