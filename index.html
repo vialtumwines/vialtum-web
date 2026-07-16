@@ -1011,6 +1011,7 @@ const DEFAULT_PACKAGES = [
   {id:'p4', title:'Vakkóstoló (10 tétel)', description:'A tiszta érzékek és a szakmaiság találkozása. A borok párban érkeznek, címke és előítéletek nélkül. Ezt a programot kifejezetten haladóknak és szakmai érdeklődőknek ajánljuk, ahol a borászati ismeret előny, a fókusz pedig a színtiszta, elfogulatlan analitikán van.', price:9900, minGroup:8},
   {id:'p5', title:'Freestyle kóstoló', description:'Engedjétek el a kormányt, és adjátok át nekünk a stafétabotot! Ezen a kóstolón teljes a bizalom: a borsort mi állítjuk össze a Vialtum Pince legizgalmasabb rejtett kincseiből és a nagyvilág ikonikus tételeiből. Nektek csak élveznetek kell a meglepetést és az utazást.', price:14900, minGroup:8},
   {id:'p6', title:'Exkluzív magyar borok kóstolója (10+1 tétel)', description:'Egy igazi rangadó a poharakban! A Vialtum Pince legszebb tételei csapnak össze a hazai élvonal legkiválóbb borászataival – teljesen a társaság ízlésére szabva. Hogy a játék se maradjon el, 4 tételt teljesen vakon szervírozunk. Készen álltok a kihívásra?', price:16900, minGroup:8},
+  {id:'p_pince', title:'Bérelhető pince', description:'Vedd birtokba egy teljes napra a Vialtum Pince hangulatos, boltíves terét egy szűk körű, magánjellegű összejövetelre – legyen szó születésnapról, jubileumról, céges csapatépítőről vagy egy kikapcsolódásra szánt baráti napról. A bérleti díj tartalmazza a pince egésznapos használatát, a terítést és a rendezvény utáni takarítást, így nektek csak a hangulatra kell figyelnetek. Igény szerint, a bérbeadóval egyeztetve, a naphoz személyre szabott borcsomagot és wellness-élményt (jacuzzi, szauna) is hozzáadhattok.', price:70000, minGroup:1, flatPrice:true, options:[]},
 ];
 let PACKAGES = [];
 
@@ -1433,7 +1434,7 @@ function fmtDate(d){
   const dt = new Date(d + "T00:00:00");
   return `${dt.getDate()}. ${MONTHS[dt.getMonth()]}`;
 }
-function fmtPrice(p){ return p.toLocaleString('hu-HU') + " Ft / fő"; }
+function fmtPrice(p, perPerson = true){ return p.toLocaleString('hu-HU') + (perPerson ? " Ft / fő" : " Ft"); }
 
 function truncateDesc(text, limit = 300){
   if(!text || text.length <= limit) return { short: text || '', truncated: false };
@@ -1562,7 +1563,7 @@ function renderPackagesBrowseView(){
           <span style="font-family:'Fraunces',serif; font-size:1.05rem; color:${text};">${p.title}</span>
           <span style="font-size:0.8rem; color:${sub}; font-family:'Jost',sans-serif; line-height:1.5;">${p.description}</span>
           ${p.minGroup && p.minGroup > 1 ? `<span class="mono" style="color:${sub}; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px;">Min. ${p.minGroup} fő</span>` : ''}
-          <span class="mono" style="color:${text}; font-size:0.8rem; font-weight:600; margin-top:auto;">${fmtPrice(p.price)}</span>
+          <span class="mono" style="color:${text}; font-size:0.8rem; font-weight:600; margin-top:auto;">${fmtPrice(p.price, !p.flatPrice)}</span>
         </div>`;
       }).join('')}
     </div>
@@ -1727,7 +1728,7 @@ function openPackageChooser(dateISO){
           <span style="font-family:'Fraunces',serif; font-size:1.05rem; color:${text};">${p.title}</span>
           <span style="font-size:0.8rem; color:${sub}; font-family:'Jost',sans-serif; line-height:1.5;">${p.description}</span>
           ${p.minGroup && p.minGroup > 1 ? `<span class="mono" style="color:${sub}; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px;">Min. ${p.minGroup} fő</span>` : ''}
-          <span class="mono" style="color:${text}; font-size:0.8rem; font-weight:600; margin-top:auto;">${fmtPrice(p.price)}</span>
+          <span class="mono" style="color:${text}; font-size:0.8rem; font-weight:600; margin-top:auto;">${fmtPrice(p.price, !p.flatPrice)}</span>
         </button>`;
       }).join('')}
     </div>
@@ -1745,7 +1746,8 @@ function openPackageChooser(dateISO){
         capacity: 40,
         minGroup: pkg.minGroup || 1,
         isPrivate: true,
-        addons: EXTRAS || []
+        flatPrice: !!pkg.flatPrice,
+        addons: [...(EXTRAS || []), ...(pkg.options || [])]
       });
     };
   });
@@ -1780,7 +1782,7 @@ function openBookingModal(eventRef){
   modal.innerHTML = `
     <button class="close-x" id="close-modal">✕</button>
     <h2>${ev.title}</h2>
-    <div class="sub">${fmtDate(ev.date)}, 2026 · ${fmtPrice(ev.price)}</div>
+    <div class="sub">${fmtDate(ev.date)}, 2026 · ${fmtPrice(ev.price, !ev.flatPrice)}${ev.flatPrice ? ' <span style="font-size:0.75em;">(teljes bérleti díj, létszámtól függetlenül)</span>' : ''}</div>
     ${ev.isPrivate ? '' : `
     <div class="seats-pct-bar"><div class="seats-pct-fill" style="width:${freePct}%"></div></div>
     <div class="seats-pct-label">${freePct}% szabad hely</div>
@@ -1916,6 +1918,7 @@ async function submitBooking(ev){
     eventTitle: ev.title,
     eventDate: ev.date,
     price: ev.price,
+    flatPrice: !!ev.flatPrice,
     nev, telefon, email, cim, adoszam,
     letszam,
     addons: selectedAddons,
@@ -2315,7 +2318,7 @@ function renderAdmin(){
         const b = bookings.find(x => x.id === btn.dataset.sendPaymentInfo);
         const basePrice = (typeof b.price === 'number') ? b.price : (EVENTS.find(x => x.id === b.eventId)?.price ?? null);
         const addonsTotal = (b.addons || []).reduce((sum, a) => sum + (Number(a.price) || 0), 0);
-        const total = basePrice !== null ? basePrice * b.letszam + addonsTotal : null;
+        const total = basePrice !== null ? (b.flatPrice ? basePrice + addonsTotal : basePrice * b.letszam + addonsTotal) : null;
         const addonsLine = (b.addons && b.addons.length)
           ? `\nVálasztott extrák: ${b.addons.map(a => a.price ? `${a.label} (+${fmtPrice(a.price).replace(' / fő','')})` : a.label).join(', ')}`
           : '';
@@ -2442,10 +2445,25 @@ function renderPackagesEditor(){
       <input type="text" data-field="title" data-pkg="${p.id}" value="${(p.title||'').replace(/"/g,'&quot;')}">
       <label>Leírás</label>
       <textarea data-field="description" data-pkg="${p.id}" rows="2" style="width:100%; padding:12px 14px; border-radius:2px; border:1px solid var(--line); background:#0d0c07; color:var(--cream); font-family:'Jost',sans-serif; font-size:0.9rem; resize:vertical;">${(p.description||'').replace(/</g,'&lt;')}</textarea>
-      <label>Ár (Ft/fő)</label>
+      <label>Ár (${p.flatPrice ? 'Ft, teljes összeg' : 'Ft/fő'})</label>
       <input type="number" data-field="price" data-pkg="${p.id}" min="0" step="500" value="${p.price}">
+      <label style="display:flex; align-items:center; gap:8px; margin-top:12px; cursor:pointer; text-transform:none; letter-spacing:0;">
+        <input type="checkbox" data-field="flatPrice" data-pkg="${p.id}" style="width:auto;" ${p.flatPrice ? 'checked' : ''}>
+        Fix, teljes összeg (nem szorzódik a létszámmal — pl. helyszínbérlésnél)
+      </label>
       <label>Minimum létszám (1 = nincs minimum)</label>
       <input type="number" data-field="minGroup" data-pkg="${p.id}" min="1" step="1" value="${p.minGroup || 1}">
+      <label style="margin-top:14px;">Opcionális extrák (csak ehhez a csomaghoz)</label>
+      <div data-pkg-options="${p.id}">
+        ${(p.options || []).map(o => `
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;" data-pkg-option-row="${o.id}">
+            <input type="text" data-opt-field="label" data-opt="${o.id}" data-pkg-opt="${p.id}" placeholder="Opció neve (pl. Borcsomag)" style="flex:2;" value="${(o.label||'').replace(/"/g,'&quot;')}">
+            <input type="number" data-opt-field="price" data-opt="${o.id}" data-pkg-opt="${p.id}" placeholder="Ft" min="0" step="500" style="flex:1;" value="${o.price||0}">
+            <button class="btn ghost" data-remove-pkg-option="${o.id}" data-pkg-opt="${p.id}" style="flex:0;">✕</button>
+          </div>
+        `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:8px;">Egyelőre nincs csomag-specifikus opció.</div>'}
+      </div>
+      <button class="btn ghost" data-add-pkg-option="${p.id}">+ Opció hozzáadása</button>
     </div>
   `).join('') || '<div style="color:var(--cream-dim); font-size:0.85rem;">Még nincs egyéni csomag — adj hozzá egyet lent.</div>';
 
@@ -2454,6 +2472,11 @@ function renderPackagesEditor(){
     input.oninput = () => {
       const pkg = PACKAGES.find(p => p.id === input.dataset.pkg);
       if(!pkg) return;
+      if(input.dataset.field === 'flatPrice'){
+        pkg.flatPrice = input.checked;
+        renderPackagesEditor();
+        return;
+      }
       pkg[input.dataset.field] = (input.dataset.field === 'price' || input.dataset.field === 'minGroup') ? Number(input.value) : input.value;
     };
   });
@@ -2469,6 +2492,32 @@ function renderPackagesEditor(){
           renderPackagesEditor();
         }
       );
+    };
+  });
+  host.querySelectorAll('[data-opt-field]').forEach(input => {
+    input.oninput = () => {
+      const pkg = PACKAGES.find(p => p.id === input.dataset.pkgOpt);
+      if(!pkg) return;
+      const opt = (pkg.options || []).find(o => o.id === input.dataset.opt);
+      if(!opt) return;
+      opt[input.dataset.optField] = input.dataset.optField === 'price' ? Number(input.value) : input.value;
+    };
+  });
+  host.querySelectorAll('[data-remove-pkg-option]').forEach(btn => {
+    btn.onclick = () => {
+      const pkg = PACKAGES.find(p => p.id === btn.dataset.pkgOpt);
+      if(!pkg) return;
+      pkg.options = (pkg.options || []).filter(o => o.id !== btn.dataset.removePkgOption);
+      renderPackagesEditor();
+    };
+  });
+  host.querySelectorAll('[data-add-pkg-option]').forEach(btn => {
+    btn.onclick = () => {
+      const pkg = PACKAGES.find(p => p.id === btn.dataset.addPkgOption);
+      if(!pkg) return;
+      if(!pkg.options) pkg.options = [];
+      pkg.options.push({id: 'pkgopt_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), label:'', price:0});
+      renderPackagesEditor();
     };
   });
 
