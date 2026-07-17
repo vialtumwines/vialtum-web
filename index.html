@@ -312,6 +312,8 @@
   .pkg-tile:hover{ transform: translateY(-2px); filter: brightness(1.08); }
   @media (max-width: 480px){
     .pkg-tile-grid{ grid-template-columns: 1fr; }
+    .view-toggle{ width:100%; }
+    .tab{ flex:1; padding:11px 8px; font-size:0.62rem; letter-spacing:0.8px; }
   }
 
   footer{
@@ -1716,6 +1718,7 @@ function openPackageChooser(dateISO){
   modal.style.maxWidth = '640px';
   const darkBg = '#241016', darkText = '#f3e9dd', darkSub = '#c4b3a8';
   const lightBg = '#e0b563', lightText = '#211407', lightSub = '#4a3418';
+  const isMobile = window.matchMedia('(max-width: 480px)').matches;
 
   modal.innerHTML = `
     <button class="close-x" id="close-modal">✕</button>
@@ -1723,8 +1726,13 @@ function openPackageChooser(dateISO){
     <div class="sub">Erre a napra nincs meghirdetett kóstoló, de foglalhatsz egyéni csomagot:</div>
     <div class="pkg-tile-grid">
       ${PACKAGES.map((p, i) => {
-        const row = Math.floor(i / 2), col = i % 2;
-        const isDark = (row + col) % 2 === 0;
+        let isDark;
+        if(isMobile){
+          isDark = true;
+        } else {
+          const row = Math.floor(i / 2), col = i % 2;
+          isDark = (row + col) % 2 === 0;
+        }
         const bg = isDark ? darkBg : lightBg;
         const text = isDark ? darkText : lightText;
         const sub = isDark ? darkSub : lightSub;
