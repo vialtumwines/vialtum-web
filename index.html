@@ -1547,13 +1547,19 @@ function renderPackagesBrowseView(){
   const host = document.getElementById('packages-view');
   const darkBg = '#241016', darkText = '#f3e9dd', darkSub = '#c4b3a8';
   const lightBg = '#e0b563', lightText = '#211407', lightSub = '#4a3418';
+  const isMobile = window.matchMedia('(max-width: 480px)').matches;
 
   host.innerHTML = `
     <div class="cal-hint" style="margin-top:0 0 26px;">Ha egy napon nincs meghirdetett kóstoló, ezek közül az egyéni csomagok közül választhatsz. A foglaláshoz ugorj a Naptárnézetre, és kattints egy üres napra.</div>
     <div class="pkg-tile-grid">
       ${PACKAGES.map((p, i) => {
-        const row = Math.floor(i / 2), col = i % 2;
-        const isDark = (row + col) % 2 === 0;
+        let isDark;
+        if(isMobile){
+          isDark = true;
+        } else {
+          const row = Math.floor(i / 2), col = i % 2;
+          isDark = (row + col) % 2 === 0;
+        }
         const bg = isDark ? darkBg : lightBg;
         const text = isDark ? darkText : lightText;
         const sub = isDark ? darkSub : lightSub;
