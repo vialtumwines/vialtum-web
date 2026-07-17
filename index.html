@@ -312,8 +312,9 @@
   .pkg-tile:hover{ transform: translateY(-2px); filter: brightness(1.08); }
   @media (max-width: 480px){
     .pkg-tile-grid{ grid-template-columns: 1fr; }
-    .view-toggle{ width:100%; }
-    .tab{ flex:1; padding:11px 8px; font-size:0.62rem; letter-spacing:0.8px; }
+    .view-toggle{ width:100%; flex-wrap:wrap; }
+    .tab{ flex:1 1 50%; padding:11px 8px; font-size:0.68rem; letter-spacing:1px; box-sizing:border-box; }
+    .tab:nth-child(1), .tab:nth-child(2){ border-bottom:1px solid var(--line); }
   }
 
   footer{
