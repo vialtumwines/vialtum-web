@@ -108,18 +108,6 @@
     line-height: 1.7;
     font-weight: 300;
   }
-  .hero-stats{
-    display:flex; gap:0; justify-content:center; margin-top:40px; flex-wrap:wrap;
-    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-    padding: 22px 0;
-  }
-  .stat{ text-align:center; padding: 0 32px; border-left: 1px solid var(--line); }
-  .stat:first-child{ border-left:none; }
-  .stat b{
-    display:block; font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:1.6rem; color: var(--gold-bright);
-    letter-spacing: -0.02em;
-  }
-  .stat span{ font-size:0.68rem; color:var(--cream-dim); text-transform:uppercase; letter-spacing:1.5px; font-family:'IBM Plex Mono', monospace; }
   .hero-agenote{
     margin-top:20px; display:flex; align-items:center; justify-content:center; gap:8px;
     font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.8px;
@@ -619,9 +607,16 @@
     <div class="eyebrow">Borkóstolók és rendezvények</div>
     <h1>Vialtum Pince <em>Dunaföldvár</em></h1>
     <p>Borkóstolók, borvacsorák és egyedi rendezvények egy hangulatos dunaföldvári pincében. Válaszd ki a hozzád illő estét, foglalj helyet, és tarts velünk a pincében.</p>
-    <div class="hero-stats">
-      <div class="stat"><b id="stat-events">–</b><span>Esemény</span></div>
-      <div class="stat"><b>40</b><span>Fő kapacitás</span></div>
+    <div class="social-row" style="margin-top:40px; margin-bottom:0;">
+      <a href="https://www.facebook.com/profile.php?id=61582420536751" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13.6 21v-8.2h2.75l.41-3.19h-3.16V7.53c0-.92.26-1.55 1.58-1.55h1.68V3.13C16.57 3.06 15.54 3 14.33 3c-2.53 0-4.26 1.54-4.26 4.37v2.24H7.31v3.19h2.76V21h3.53Z" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.instagram.com/vialtumwines" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.4"/><circle cx="17.1" cy="6.9" r="1.05" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@vialtumwines" target="_blank" rel="noopener" class="social-icon" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15.4 3h-3v11.6a2.9 2.9 0 1 1-2.05-2.77v-3.05a5.95 5.95 0 1 0 5.05 5.88V9.63a7.1 7.1 0 0 0 3.9 1.16V7.72a4.12 4.12 0 0 1-3.9-4.03V3Z" fill="currentColor"/></svg>
+      </a>
     </div>
     <div class="hero-agenote">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 3C6.3 3 5.1 4.9 5.4 7.3C5.7 10.6 7.8 13.4 12 13.4C16.2 13.4 18.3 10.6 18.6 7.3C18.9 4.9 17.7 3 16 3"/><path d="M12 13.4V19.5"/><path d="M8.4 20H15.6"/></svg>
@@ -1507,7 +1502,6 @@ function renderGrid(){
   });
 
   applyPosters(grid);
-  document.getElementById('stat-events').textContent = EVENTS.length;
 
   grid.querySelectorAll('button[data-event]').forEach(btn=>{
     btn.addEventListener('click', () => openBookingModal(btn.dataset.event));
