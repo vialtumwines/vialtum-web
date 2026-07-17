@@ -434,7 +434,17 @@
   }
   .event-chip.private-chip{ color: var(--gold-bright); border-color: rgba(216,184,118,0.45); }
   .more-chip{ font-size:0.6rem; color: var(--gold); font-family:'IBM Plex Mono', monospace; }
+  .cal-day.day-locked{ background: rgba(140,47,57,0.14); cursor:default; }
+  .cal-day.day-locked .daynum{ color: var(--cream-dim); }
+  .day-locked-ribbon{
+    position:absolute; left:-6px; right:-6px; top:50%; transform:translateY(-50%);
+    background: var(--mark-red); color:#fff; text-align:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:0.68rem;
+    letter-spacing:1.5px; text-transform:uppercase; padding:5px 0;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.4); z-index:2;
+  }
   @media (max-width: 560px){
+    .day-locked-ribbon{ font-size:0.52rem; padding:3px 0; letter-spacing:0.8px; }
     .cal-day{ min-height:64px; }
     .cal-day-content{ padding:5px; }
     .event-chip{ font-size:0.56rem; padding:2px 4px; }
@@ -1628,21 +1638,23 @@ function renderCalendar(){
     const hasEvents = dayEvents.length > 0;
     const isToday = c.dateISO === todayISO;
     const isPast = c.dateISO < todayISO;
-    const privateBookingsForDay = !hasEvents ? bookings.filter(b => isPrivateBooking(b) && b.eventDate === c.dateISO) : [];
+    const wholeDayLocked = bookings.some(b => b.eventDate === c.dateISO && b.confirmed && b.blocksWholeDay);
+    const privateBookingsForDay = (!hasEvents && !wholeDayLocked) ? bookings.filter(b => isPrivateBooking(b) && b.eventDate === c.dateISO) : [];
     const totalSlots = generateTimeSlots().length;
     const hasPrivate = privateBookingsForDay.length > 0;
     const dayFull = hasPrivate && privateBookingsForDay.length >= totalSlots;
-    const isEmptyBookable = !hasEvents && !isPast && !dayFull;
-    const posterImg = hasEvents ? dayEvents.find(e => e.image)?.image : null;
-    return `<div class="cal-day ${hasEvents ? 'has-event' : ''} ${hasPrivate ? 'has-private' : ''} ${dayFull ? 'day-full' : ''} ${isEmptyBookable ? 'empty-bookable' : ''} ${isToday ? 'today' : ''}" ${hasEvents ? `data-day="${c.dateISO}"` : ''} ${isEmptyBookable ? `data-empty="${c.dateISO}"` : ''}>
+    const isEmptyBookable = !hasEvents && !isPast && !dayFull && !wholeDayLocked;
+    const posterImg = (hasEvents && !wholeDayLocked) ? dayEvents.find(e => e.image)?.image : null;
+    return `<div class="cal-day ${wholeDayLocked ? 'day-locked' : ''} ${(hasEvents && !wholeDayLocked) ? 'has-event' : ''} ${(hasPrivate && !wholeDayLocked) ? 'has-private' : ''} ${dayFull ? 'day-full' : ''} ${isEmptyBookable ? 'empty-bookable' : ''} ${isToday ? 'today' : ''}" ${(hasEvents && !wholeDayLocked) ? `data-day="${c.dateISO}"` : ''} ${isEmptyBookable ? `data-empty="${c.dateISO}"` : ''}>
       ${posterImg ? `<div class="day-poster" data-poster="${posterImg.replace(/"/g,'&quot;')}"></div>` : ''}
       <div class="cal-day-content">
         <span class="daynum">${c.day}</span>
-        ${hasEvents ? `<div class="event-dot-wrap">
+        ${wholeDayLocked ? `<div class="day-locked-ribbon">Foglalt</div>` : ''}
+        ${(!wholeDayLocked && hasEvents) ? `<div class="event-dot-wrap">
           <div class="event-chip">${dayEvents[0].title.length > 18 ? dayEvents[0].title.slice(0,17) + '…' : dayEvents[0].title}</div>
           ${dayEvents.length > 1 ? `<div class="more-chip">+${dayEvents.length - 1} további</div>` : ''}
         </div>` : ''}
-        ${!hasEvents && hasPrivate ? `<div class="event-dot-wrap">
+        ${(!wholeDayLocked && !hasEvents && hasPrivate) ? `<div class="event-dot-wrap">
           <div class="event-chip private-chip">${dayFull ? 'Minden idő foglalt' : `${privateBookingsForDay.length} egyéni foglalás`}</div>
         </div>` : ''}
       </div>
@@ -1754,6 +1766,7 @@ function openPackageChooser(dateISO){
         minGroup: pkg.minGroup || 1,
         isPrivate: true,
         flatPrice: !!pkg.flatPrice,
+        blocksWholeDay: !!pkg.blocksWholeDay,
         addons: [...(EXTRAS || []), ...(pkg.options || [])]
       });
     };
@@ -1926,6 +1939,7 @@ async function submitBooking(ev){
     eventDate: ev.date,
     price: ev.price,
     flatPrice: !!ev.flatPrice,
+    blocksWholeDay: !!ev.blocksWholeDay,
     nev, telefon, email, cim, adoszam,
     letszam,
     addons: selectedAddons,
@@ -2458,6 +2472,10 @@ function renderPackagesEditor(){
         <input type="checkbox" data-field="flatPrice" data-pkg="${p.id}" style="width:auto;" ${p.flatPrice ? 'checked' : ''}>
         Fix, teljes összeg (nem szorzódik a létszámmal — pl. helyszínbérlésnél)
       </label>
+      <label style="display:flex; align-items:center; gap:8px; margin-top:10px; cursor:pointer; text-transform:none; letter-spacing:0;">
+        <input type="checkbox" data-field="blocksWholeDay" data-pkg="${p.id}" style="width:auto;" ${p.blocksWholeDay ? 'checked' : ''}>
+        Visszaigazolt foglalásnál az egész nap zárolása (piros "Foglalt" tábla a naptárban, más foglalás nem vehető fel aznapra)
+      </label>
       <label>Minimum létszám (1 = nincs minimum)</label>
       <input type="number" data-field="minGroup" data-pkg="${p.id}" min="1" step="1" value="${p.minGroup || 1}">
       <label style="margin-top:14px;">Opcionális extrák (csak ehhez a csomaghoz)</label>
@@ -2479,8 +2497,8 @@ function renderPackagesEditor(){
     input.oninput = () => {
       const pkg = PACKAGES.find(p => p.id === input.dataset.pkg);
       if(!pkg) return;
-      if(input.dataset.field === 'flatPrice'){
-        pkg.flatPrice = input.checked;
+      if(input.dataset.field === 'flatPrice' || input.dataset.field === 'blocksWholeDay'){
+        pkg[input.dataset.field] = input.checked;
         renderPackagesEditor();
         return;
       }
