@@ -957,31 +957,46 @@ const DEFAULT_EVENTS = [
 /* ---------- VALÓDI, INTERNETES TÁROLÁS (Google Sheets + Apps Script) ---------- */
 const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbzdPAZIq3GRCsQIAxnTF1qWYRhLijNftM0rRphKZF-u1I6pDKZBvzo3T0f3SPR-RPD-ng/exec";
 
+// _lastUpdatedAt: kulcsonként megjegyzi, mikor lett utoljára mentve az az adat,
+// amit mi töltöttünk be — mentéskor ezt küldjük vissza expected_updated_at-ként,
+// hogy a backend észlelje, ha időközben egy másik admin-session már mentett
+// (pl. egy nyitva hagyott régi fül), és ne írjuk csendben felül a változását.
 const sheetsStorage = {
+  _lastUpdatedAt: {},
   async get(key){
     try{
       const res = await fetch(`${SHEETS_API_URL}?key=${encodeURIComponent(key)}`);
       const data = await res.json();
       if(!data || data.value === null || data.value === undefined) return null;
+      this._lastUpdatedAt[key] = data.updated_at || null;
       return { key, value: data.value };
     }catch(e){
       console.error('Sheets get hiba:', e);
       throw e;
     }
   },
+  // Visszatérési érték: true = mentve, false = hiba, 'conflict' = valaki más
+  // időközben módosította ezt a kulcsot, ezt a mentést szándékosan elutasítottuk.
   async set(key, value){
     try{
       const res = await fetch(SHEETS_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ key, value })
+        body: JSON.stringify({ key, value, expected_updated_at: this._lastUpdatedAt[key] || null })
       });
       const data = await res.json();
-      if(!data || !data.ok) return null;
-      return { key, value };
+      if(!data || !data.ok){
+        if(data && data.error === 'conflict'){
+          console.warn(`Ütközés mentéskor (${key}): valaki más időközben módosította.`);
+          return 'conflict';
+        }
+        return false;
+      }
+      this._lastUpdatedAt[key] = data.updated_at || null;
+      return true;
     }catch(e){
       console.error('Sheets set hiba:', e);
-      return null;
+      return false;
     }
   }
 };
@@ -1003,7 +1018,7 @@ async function loadEvents(){
 async function saveEvents(){
   try{
     const res = await sheetsStorage.set('kostolo-esemenyek', JSON.stringify(EVENTS));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Esemény mentési hiba:', e);
     return false;
@@ -1036,7 +1051,7 @@ async function loadPackages(){
 async function savePackages(){
   try{
     const res = await sheetsStorage.set('kostolo-csomagok', JSON.stringify(PACKAGES));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Csomag mentési hiba:', e);
     return false;
@@ -1062,7 +1077,7 @@ async function loadExtras(){
 async function saveExtras(){
   try{
     const res = await sheetsStorage.set('kostolo-extrak', JSON.stringify(EXTRAS));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Extra mentési hiba:', e);
     return false;
@@ -1088,7 +1103,7 @@ async function loadPrivateHours(){
 async function savePrivateHours(){
   try{
     const res = await sheetsStorage.set('kostolo-idosavok', JSON.stringify(PRIVATE_HOURS));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Idősáv mentési hiba:', e);
     return false;
@@ -1114,7 +1129,7 @@ async function loadNotificationSettings(){
 async function saveNotificationSettings(){
   try{
     const res = await sheetsStorage.set('kostolo-ertesites-beallitasok', JSON.stringify(NOTIFICATION_SETTINGS));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Értesítési beállítás mentési hiba:', e);
     return false;
@@ -1158,7 +1173,7 @@ async function loadAbout(){
 async function saveAbout(){
   try{
     const res = await sheetsStorage.set('kostolo-rolunk', ABOUT_TEXT);
-    return !!res;
+    return res;
   }catch(e){
     console.error('Rólunk szöveg mentési hiba:', e);
     return false;
@@ -1181,7 +1196,7 @@ async function loadAboutImage(){
 async function saveAboutImage(){
   try{
     const res = await sheetsStorage.set('kostolo-rolunk-kep', ABOUT_IMAGE_URL);
-    return !!res;
+    return res;
   }catch(e){
     console.error('Rólunk kép mentési hiba:', e);
     return false;
@@ -1207,7 +1222,7 @@ async function loadTestimonials(){
 async function saveTestimonials(){
   try{
     const res = await sheetsStorage.set('kostolo-velemenyek', JSON.stringify(TESTIMONIALS));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Vélemény mentési hiba:', e);
     return false;
@@ -1278,7 +1293,7 @@ async function loadGallery(){
 async function saveGallery(){
   try{
     const res = await sheetsStorage.set('kostolo-galeria', JSON.stringify(GALLERY));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Galéria mentési hiba:', e);
     return false;
@@ -1380,16 +1395,20 @@ function openWriteReviewModal(){
     btn.textContent = 'Küldés…';
 
     await loadTestimonials();
-    TESTIMONIALS.push({
+    const newTesti = {
       id: 'testi_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
       quote, author, anonymous,
       ratings: { ...ratingsState },
       approved: false
-    });
+    };
+    TESTIMONIALS.push(newTesti);
     const ok = await saveTestimonials();
 
-    if(!ok){
-      errBox.textContent = 'Hiba történt a küldés közben, kérlek próbáld újra.';
+    if(ok !== true){
+      TESTIMONIALS = TESTIMONIALS.filter(t => t.id !== newTesti.id);
+      errBox.textContent = ok === 'conflict'
+        ? 'Időközben valaki más is küldött be véleményt — kérlek próbáld újra.'
+        : 'Hiba történt a küldés közben, kérlek próbáld újra.';
       errBox.style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Küldés';
@@ -1468,7 +1487,7 @@ async function loadBookings(){
 async function saveBookings(){
   try{
     const res = await sheetsStorage.set('kostolo-foglalasok', JSON.stringify(bookings));
-    return !!res;
+    return res;
   }catch(e){
     console.error('Mentési hiba:', e);
     return false;
@@ -1863,6 +1882,17 @@ function closeModal(){
   document.getElementById('overlay').classList.remove('open');
 }
 
+// Segédfüggvények a fülön belüli "Mentve ✓" span-ekhez (más UI elem, mint a
+// globális showSaveToast, de ugyanúgy kezelnie kell az 'conflict' esetet).
+function saveMsgText(ok){
+  if(ok === true) return 'Mentve ✓';
+  if(ok === 'conflict') return 'Ütközés — frissítsd az oldalt';
+  return 'Hiba a mentéskor';
+}
+function saveMsgColor(ok){
+  return ok === true ? 'var(--gold-bright)' : 'var(--mark-red)';
+}
+
 let saveToastTimer = null;
 function showSaveToast(ok, okMsg, errMsg){
   let toast = document.getElementById('save-toast');
@@ -1872,11 +1902,17 @@ function showSaveToast(ok, okMsg, errMsg){
     toast.className = 'save-toast';
     document.body.appendChild(toast);
   }
-  toast.textContent = ok ? (okMsg || 'Mentve ✓') : (errMsg || 'Hiba a mentéskor, próbáld újra.');
-  toast.classList.toggle('error', !ok);
+  const isConflict = ok === 'conflict';
+  const success = ok === true;
+  toast.textContent = success
+    ? (okMsg || 'Mentve ✓')
+    : isConflict
+      ? 'Időközben valaki más módosította ezt — frissítsd az oldalt (F5), és mentsd újra.'
+      : (errMsg || 'Hiba a mentéskor, próbáld újra.');
+  toast.classList.toggle('error', !success);
   toast.classList.add('show');
   clearTimeout(saveToastTimer);
-  saveToastTimer = setTimeout(() => { toast.classList.remove('show'); }, 2500);
+  saveToastTimer = setTimeout(() => { toast.classList.remove('show'); }, isConflict ? 6000 : 2500);
 }
 
 function openEventDetailsModal(eventId){
@@ -1973,8 +2009,11 @@ async function submitBooking(ev){
   bookings.push(booking);
   const ok = await saveBookings();
 
-  if(!ok){
-    showFormError('Hiba történt a mentés közben, kérlek próbáld újra.');
+  if(ok !== true){
+    bookings = bookings.filter(b => b.id !== booking.id);
+    showFormError(ok === 'conflict'
+      ? 'Időközben valaki más is foglalt — kérlek próbáld újra.'
+      : 'Hiba történt a mentés közben, kérlek próbáld újra.');
     submitBtn.disabled = false;
     submitBtn.textContent = 'Foglalás rögzítése';
     return;
@@ -2418,9 +2457,9 @@ Vialtum Pince, Dunaföldvár`);
       const ok = await savePrivateHours();
       const msg = document.getElementById('private-hours-saved-msg');
       msg.style.display = 'inline';
-      msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
-      msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
-      setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      msg.textContent = saveMsgText(ok);
+      msg.style.color = saveMsgColor(ok);
+      setTimeout(() => { msg.style.display = 'none'; }, ok === 'conflict' ? 6000 : 2500);
     };
   }
   if(adminTab === 'extrak') renderExtrasEditor();
@@ -2567,9 +2606,9 @@ function renderPackagesEditor(){
       const msg = document.getElementById('packages-saved-msg');
       if(msg){
         msg.style.display = 'inline';
-        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
-        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
-        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        msg.textContent = saveMsgText(ok);
+        msg.style.color = saveMsgColor(ok);
+        setTimeout(() => { msg.style.display = 'none'; }, ok === 'conflict' ? 6000 : 2500);
       }
     };
   }
@@ -2617,9 +2656,9 @@ function renderExtrasEditor(){
       const msg = document.getElementById('extras-saved-msg');
       if(msg){
         msg.style.display = 'inline';
-        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
-        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
-        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        msg.textContent = saveMsgText(ok);
+        msg.style.color = saveMsgColor(ok);
+        setTimeout(() => { msg.style.display = 'none'; }, ok === 'conflict' ? 6000 : 2500);
       }
     };
   }
@@ -2644,13 +2683,15 @@ function renderAboutEditor(){
     ABOUT_IMAGE_URL = document.getElementById('about-image-input').value.trim();
     const ok1 = await saveAbout();
     const ok2 = await saveAboutImage();
+    const allOk = ok1 === true && ok2 === true;
+    const anyConflict = ok1 === 'conflict' || ok2 === 'conflict';
     renderAboutPublic();
     const msg = document.getElementById('about-saved-msg');
     if(msg){
       msg.style.display = 'inline';
-      msg.textContent = (ok1 && ok2) ? 'Mentve ✓' : 'Hiba a mentéskor';
-      msg.style.color = (ok1 && ok2) ? 'var(--gold-bright)' : 'var(--mark-red)';
-      setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      msg.textContent = allOk ? 'Mentve ✓' : (anyConflict ? 'Ütközés — frissítsd az oldalt' : 'Hiba a mentéskor');
+      msg.style.color = allOk ? 'var(--gold-bright)' : 'var(--mark-red)';
+      setTimeout(() => { msg.style.display = 'none'; }, anyConflict ? 6000 : 2500);
     }
   };
 }
@@ -2772,9 +2813,9 @@ function renderTestimonialsEditor(){
       const msg = document.getElementById('testimonials-saved-msg');
       if(msg){
         msg.style.display = 'inline';
-        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
-        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
-        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        msg.textContent = saveMsgText(ok);
+        msg.style.color = saveMsgColor(ok);
+        setTimeout(() => { msg.style.display = 'none'; }, ok === 'conflict' ? 6000 : 2500);
       }
     };
   }
@@ -2828,9 +2869,9 @@ function renderGalleryEditor(){
       const msg = document.getElementById('gallery-saved-msg');
       if(msg){
         msg.style.display = 'inline';
-        msg.textContent = ok ? 'Mentve ✓' : 'Hiba a mentéskor';
-        msg.style.color = ok ? 'var(--gold-bright)' : 'var(--mark-red)';
-        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        msg.textContent = saveMsgText(ok);
+        msg.style.color = saveMsgColor(ok);
+        setTimeout(() => { msg.style.display = 'none'; }, ok === 'conflict' ? 6000 : 2500);
       }
     };
   }
