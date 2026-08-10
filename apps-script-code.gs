@@ -36,7 +36,13 @@ function getKvValue(sheet, key){
 
 function doGet(e){
   const key = e.parameter.key;
+  const historyKey = e.parameter.history;
   const sheet = getSheet();
+
+  if(historyKey){
+    return jsonOut({entries: getHistoryFor(historyKey)});
+  }
+
   if(!key){
     return jsonOut({error:'missing key'});
   }
@@ -49,11 +55,40 @@ function doGet(e){
   return jsonOut({value: value, updated_at: updatedAt ? String(updatedAt) : null});
 }
 
+// A History munkalapról adott kulcshoz tartozó bejegyzéseket adja vissza
+// (legújabb elöl), hogy egy véletlen felülírás után kézzel visszakereshető
+// legyen egy korábbi állapot ?history=<kulcs> paraméterrel.
+function getHistoryFor(key){
+  try{
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const hist = ss.getSheetByName('History');
+    if(!hist) return [];
+    const data = hist.getDataRange().getValues();
+    const entries = [];
+    for(let i=1;i<data.length;i++){
+      if(data[i][1] === key){
+        entries.push({timestamp: data[i][0], old_value: data[i][2], new_value: data[i][3]});
+      }
+    }
+    entries.reverse();
+    return entries;
+  }catch(err){
+    return [];
+  }
+}
+
 // Ütközés-védelem: a kliens minden GET-nél megjegyzi a kapott updated_at-ot, és
 // visszaküldi expected_updated_at-ként a következő mentésnél. Ha időközben más
 // session már mentett (tehát a Sheet-ben lévő updated_at eltér az elvárttól),
 // a mentést elutasítjuk ahelyett, hogy csendben felülírnánk a köztes változást
 // (ez okozta korábban, hogy egy régebbi admin-fül mentése eltüntetett eseményeket).
+//
+// FONTOS: ha a kulcshoz már van mentett adat, az expected_updated_at KÖTELEZŐ —
+// ha hiányzik (pl. mert egy még régebbi, e védelem előtti kódot futtató,
+// napok/hetek óta nyitva hagyott admin-fül küldte a kérést), a mentést EZ IS
+// ütközésként utasítja el, nem csak akkor, ha ténylegesen eltér az időbélyeg.
+// E nélkül a szigorítás nélkül pont egy ilyen "néma" régi fül tudta kétszer is
+// csendben felülírni/eltüntetni a friss adatokat (2026-07-28, 2026-07-29).
 function doPost(e){
   const body = JSON.parse(e.postData.contents);
 
@@ -70,9 +105,11 @@ function doPost(e){
   const row = findRow(sheet, key);
   const now = new Date().toISOString();
 
-  if(row !== -1 && body.expected_updated_at){
+  if(row !== -1){
     const currentUpdatedAt = sheet.getRange(row,3).getValue();
-    if(String(currentUpdatedAt) !== String(body.expected_updated_at)){
+    const currentUpdatedAtStr = currentUpdatedAt ? String(currentUpdatedAt) : '';
+    const expected = body.expected_updated_at ? String(body.expected_updated_at) : '';
+    if(expected !== currentUpdatedAtStr){
       return jsonOut({
         ok:false,
         error:'conflict',

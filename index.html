@@ -2169,6 +2169,22 @@ const ADMIN_TABS = [
   {id:'velemenyek', label:'Vélemények'},
   {id:'galeria', label:'Galéria'},
   {id:'ertesitesek', label:'Értesítések'},
+  {id:'elozmenyek', label:'Előzmények'},
+];
+
+// A visszaállítható kulcsok — a kostolo-foglalasok (élő, vendégek által is
+// írt adat) szándékosan nincs itt, azt csak kézzel, óvatos read-modify-write-tal
+// szabad módosítani, nem egy generikus "egy kattintásos visszaállítás" gombbal.
+const HISTORY_RESTORABLE_KEYS = [
+  {key:'kostolo-esemenyek', label:'Kóstolók'},
+  {key:'kostolo-csomagok', label:'Csomagok'},
+  {key:'kostolo-extrak', label:'Extrák'},
+  {key:'kostolo-rolunk', label:'Rólunk szöveg'},
+  {key:'kostolo-rolunk-kep', label:'Rólunk kép'},
+  {key:'kostolo-velemenyek', label:'Vélemények'},
+  {key:'kostolo-galeria', label:'Galéria'},
+  {key:'kostolo-idosavok', label:'Időbeállítások'},
+  {key:'kostolo-ertesites-beallitasok', label:'Értesítési beállítások'},
 ];
 
 function renderAdmin(){
@@ -2332,6 +2348,12 @@ function renderAdmin(){
     <div id="notifications-editor"></div>
   `;
 
+  const elozmenyekHTML = `
+    <h3 style="margin-top:0;">Előzmények / visszaállítás</h3>
+    <div class="sub" style="color:var(--cream-dim); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">Minden mentés előtt automatikusan elmentődik a korábbi állapot is. Ha valami véletlenül eltűnt vagy elromlott (pl. mert két admin-fül ütközött), itt magad is visszaállíthatod egy korábbi mentésre — a foglalások (vendégadatok) kivételével, azokat biztonsági okból csak kézzel szabad módosítani.</div>
+    <div id="history-editor"></div>
+  `;
+
   const tabContent = {
     foglalasok: foglalasokHTML,
     kostolok: kostolokHTML,
@@ -2341,6 +2363,7 @@ function renderAdmin(){
     velemenyek: velemenyekHTML,
     galeria: galeriaHTML,
     ertesitesek: ertesitesekHTML,
+    elozmenyek: elozmenyekHTML,
   }[adminTab];
 
   panel.innerHTML = `
@@ -2467,9 +2490,10 @@ Vialtum Pince, Dunaföldvár`);
   if(adminTab === 'velemenyek') renderTestimonialsEditor();
   if(adminTab === 'galeria') renderGalleryEditor();
   if(adminTab === 'ertesitesek') renderNotificationsEditor();
+  if(adminTab === 'elozmenyek') renderHistoryEditor();
 }
 
-function openConfirmModal(title, message, onConfirm){
+function openConfirmModal(title, message, onConfirm, confirmLabel){
   const modal = document.getElementById('modal-content');
   modal.style.maxWidth = '';
   modal.innerHTML = `
@@ -2478,7 +2502,7 @@ function openConfirmModal(title, message, onConfirm){
     <div class="sub">${message}</div>
     <div class="modal-actions">
       <button type="button" class="btn secondary" id="cancel-confirm">Mégse</button>
-      <button type="button" class="btn" id="do-confirm">Törlés megerősítése</button>
+      <button type="button" class="btn" id="do-confirm">${confirmLabel || 'Törlés megerősítése'}</button>
     </div>
   `;
   document.getElementById('overlay').classList.add('open');
@@ -2718,6 +2742,104 @@ function renderNotificationsEditor(){
     };
     const ok = await saveNotificationSettings();
     showSaveToast(ok);
+  };
+}
+
+/* ---------- ELŐZMÉNYEK / ÖNKISZOLGÁLÓ VISSZAÁLLÍTÁS ---------- */
+async function fetchHistoryEntries(key){
+  try{
+    const res = await fetch(`${SHEETS_API_URL}?history=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    return data.entries || [];
+  }catch(e){
+    console.error('History lekérdezési hiba:', e);
+    return [];
+  }
+}
+
+async function restoreHistoryValue(key, valueStr){
+  await sheetsStorage.get(key);
+  const ok = await sheetsStorage.set(key, valueStr);
+  if(ok === true){
+    await Promise.all([
+      loadEvents(), loadPackages(), loadExtras(), loadBookings(),
+      loadAbout(), loadAboutImage(), loadTestimonials(), loadGallery(), loadPrivateHours(),
+      loadNotificationSettings()
+    ]);
+    renderAdmin(); renderGrid(); renderAboutPublic(); renderTestimonialsPublic(); renderGalleryPublic();
+    showSaveToast(true, 'Visszaállítva ✓');
+  } else {
+    showSaveToast(ok);
+  }
+}
+
+let historyEntriesCache = [];
+function renderHistoryEditor(){
+  const host = document.getElementById('history-editor');
+  if(!host) return;
+  host.innerHTML = `
+    <label>Melyik adatot nézzük?</label>
+    <select id="history-key-select">
+      ${HISTORY_RESTORABLE_KEYS.map(k => `<option value="${k.key}">${k.label}</option>`).join('')}
+    </select>
+    <div class="row-actions">
+      <button class="btn secondary" id="load-history">Előzmények betöltése</button>
+    </div>
+    <div id="history-entries-list" style="margin-top:16px;"></div>
+  `;
+  document.getElementById('load-history').onclick = async () => {
+    const key = document.getElementById('history-key-select').value;
+    const keyLabel = HISTORY_RESTORABLE_KEYS.find(k => k.key === key)?.label || key;
+    const listEl = document.getElementById('history-entries-list');
+    listEl.innerHTML = '<div class="sub">Betöltés…</div>';
+    historyEntriesCache = await fetchHistoryEntries(key);
+    if(historyEntriesCache.length === 0){
+      listEl.innerHTML = '<div class="sub">Ehhez a kulcshoz még nincs mentett előzmény.</div>';
+      return;
+    }
+    listEl.innerHTML = historyEntriesCache.map((e, i) => {
+      const ts = new Date(e.timestamp).toLocaleString('hu-HU');
+      const raw = String(e.old_value || '');
+      const preview = raw.slice(0, 160).replace(/</g,'&lt;');
+      return `
+        <div style="border:1px solid var(--line); padding:12px 14px; margin-bottom:10px;">
+          <div class="mono" style="font-size:0.78rem; color:var(--gold-bright); margin-bottom:6px;">${ts}</div>
+          <div style="font-size:0.82rem; color:var(--cream-dim); word-break:break-word;">${preview}${raw.length > 160 ? '…' : ''}</div>
+          <pre data-history-full="${i}" style="display:none; white-space:pre-wrap; word-break:break-word; font-size:0.78rem; margin-top:8px; max-height:300px; overflow:auto; background:#0d0c07; padding:10px; border-radius:2px;"></pre>
+          <div class="row-actions" style="margin-top:10px;">
+            <button class="btn ghost" data-history-view="${i}">Teljes szöveg</button>
+            <button class="btn" data-history-restore="${i}">Visszaállítás erre az állapotra</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    listEl.querySelectorAll('[data-history-view]').forEach(btn => {
+      btn.onclick = () => {
+        const i = btn.dataset.historyView;
+        const pre = listEl.querySelector(`pre[data-history-full="${i}"]`);
+        if(pre.style.display === 'none'){
+          pre.textContent = historyEntriesCache[i].old_value;
+          pre.style.display = 'block';
+          btn.textContent = 'Elrejtés';
+        } else {
+          pre.style.display = 'none';
+          btn.textContent = 'Teljes szöveg';
+        }
+      };
+    });
+    listEl.querySelectorAll('[data-history-restore]').forEach(btn => {
+      btn.onclick = () => {
+        const i = btn.dataset.historyRestore;
+        const entry = historyEntriesCache[i];
+        const ts = new Date(entry.timestamp).toLocaleString('hu-HU');
+        openConfirmModal(
+          'Biztosan visszaállítod?',
+          `Ez felülírja a jelenlegi "${keyLabel}" adatot ezzel a ${ts} előtti mentéssel. A jelenlegi állapot is elmentődik az előzményekbe, tehát ha mégis tévedés volt, az is visszaállítható innen.`,
+          () => restoreHistoryValue(key, entry.old_value),
+          'Visszaállítás megerősítése'
+        );
+      };
+    });
   };
 }
 
