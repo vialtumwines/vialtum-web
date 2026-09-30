@@ -1500,6 +1500,12 @@ function seatsTakenFor(eventId){
     .reduce((sum, b) => sum + Number(b.letszam || 0), 0);
 }
 
+// Egy esemény akkor "betelt", ha a kapacitás elfogyott, VAGY az admin kézzel
+// betelt-nek jelölte (pl. mert telefonon/személyesen már mind lefoglalták).
+function isEventFull(ev){
+  return !!ev.manualFull || (ev.capacity - seatsTakenFor(ev.id)) <= 0;
+}
+
 function renderGrid(){
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
@@ -1507,7 +1513,7 @@ function renderGrid(){
   EVENTS.forEach(ev => {
     const taken = seatsTakenFor(ev.id);
     const free = Math.max(0, ev.capacity - taken);
-    const isFull = free <= 0;
+    const isFull = isEventFull(ev);
     const desc = truncateDesc(ev.description);
 
     const card = document.createElement('div');
@@ -1661,7 +1667,8 @@ function renderCalendar(){
     const privateBookingsForDay = (!hasEvents && !wholeDayLocked) ? bookings.filter(b => isPrivateBooking(b) && b.eventDate === c.dateISO) : [];
     const totalSlots = generateTimeSlots().length;
     const hasPrivate = privateBookingsForDay.length > 0;
-    const dayFull = hasPrivate && privateBookingsForDay.length >= totalSlots;
+    const allEventsFullThisDay = hasEvents && dayEvents.every(e => isEventFull(e));
+    const dayFull = (hasPrivate && privateBookingsForDay.length >= totalSlots) || allEventsFullThisDay;
     const isEmptyBookable = !hasEvents && !isPast && !dayFull && !wholeDayLocked;
     const posterImg = (hasEvents && !wholeDayLocked) ? dayEvents.find(e => e.image)?.image : null;
     return `<div class="cal-day ${wholeDayLocked ? 'day-locked' : ''} ${(hasEvents && !wholeDayLocked) ? 'has-event' : ''} ${(hasPrivate && !wholeDayLocked) ? 'has-private' : ''} ${dayFull ? 'day-full' : ''} ${isEmptyBookable ? 'empty-bookable' : ''} ${isToday ? 'today' : ''}" ${(hasEvents && !wholeDayLocked) ? `data-day="${c.dateISO}"` : ''} ${isEmptyBookable ? `data-empty="${c.dateISO}"` : ''}>
@@ -1671,7 +1678,7 @@ function renderCalendar(){
         ${wholeDayLocked ? `<div class="day-locked-ribbon">Foglalt</div>` : ''}
         ${(!wholeDayLocked && hasEvents) ? `<div class="event-dot-wrap">
           <div class="event-chip">${dayEvents[0].title.length > 18 ? dayEvents[0].title.slice(0,17) + '…' : dayEvents[0].title}</div>
-          ${dayEvents.length > 1 ? `<div class="more-chip">+${dayEvents.length - 1} további</div>` : ''}
+          ${isEventFull(dayEvents[0]) ? '<div class="more-chip" style="color:var(--mark-red);">Betelt</div>' : (dayEvents.length > 1 ? `<div class="more-chip">+${dayEvents.length - 1} további</div>` : '')}
         </div>` : ''}
         ${(!wholeDayLocked && !hasEvents && hasPrivate) ? `<div class="event-dot-wrap">
           <div class="event-chip private-chip">${dayFull ? 'Minden idő foglalt' : `${privateBookingsForDay.length} egyéni foglalás`}</div>
@@ -1794,6 +1801,29 @@ function openPackageChooser(dateISO){
 
 function openBookingModal(eventRef){
   const ev = typeof eventRef === 'string' ? EVENTS.find(e => e.id === eventRef) : eventRef;
+
+  // meghirdetett kóstolónál (nem egyéni csomagnál) tiszteletben tartjuk a
+  // kézi "Betelt" jelölést / elfogyott kapacitást attól függetlenül, honnan
+  // nyitották meg ezt a modalt (kártya gombja már eleve le van tiltva ilyenkor,
+  // de a naptárnézetből/"Bővebben" gombból ide vezető út nem — ott is blokkolni kell)
+  if(!ev.isPrivate && isEventFull(ev)){
+    const modal = document.getElementById('modal-content');
+    modal.style.maxWidth = '';
+    modal.innerHTML = `
+      <button class="close-x" id="close-modal">✕</button>
+      <h2>${ev.title}</h2>
+      <div class="sub">${fmtDate(ev.date)}, 2026 · ${fmtPrice(ev.price)}</div>
+      <div style="margin-top:18px; padding:14px 16px; background:rgba(140,47,57,0.15); border:1px solid var(--wine); border-radius:8px; font-size:0.9rem; color:var(--cream);">Sajnos ez a kóstoló betelt, jelenleg nem foglalható.</div>
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" id="cancel-modal">Bezár</button>
+      </div>
+    `;
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('close-modal').onclick = closeModal;
+    document.getElementById('cancel-modal').onclick = closeModal;
+    return;
+  }
+
   const free = Math.max(0, ev.capacity - seatsTakenFor(ev.id));
   const freePct = Math.max(0, Math.round((free / ev.capacity) * 100));
   const minG = ev.minGroup || 1;
@@ -1918,6 +1948,7 @@ function showSaveToast(ok, okMsg, errMsg){
 function openEventDetailsModal(eventId){
   const ev = EVENTS.find(e => e.id === eventId);
   if(!ev) return;
+  const full = isEventFull(ev);
   const modal = document.getElementById('modal-content');
   modal.style.maxWidth = '560px';
   modal.innerHTML = `
@@ -1927,7 +1958,7 @@ function openEventDetailsModal(eventId){
     <p style="color:var(--cream-dim); font-size:0.9rem; line-height:1.7; white-space:pre-line; margin-top:14px;">${(ev.description || '').replace(/</g,'&lt;')}</p>
     <div class="modal-actions">
       <button type="button" class="btn secondary" id="cancel-modal">Bezár</button>
-      <button type="button" class="btn" id="details-book-btn">Foglalok</button>
+      <button type="button" class="btn" id="details-book-btn" ${full ? 'disabled' : ''}>${full ? 'Betelt' : 'Foglalok'}</button>
     </div>
   `;
   document.getElementById('overlay').classList.add('open');
@@ -1997,7 +2028,7 @@ async function submitBooking(ev){
     }
   }else{
     const free = ev.capacity - seatsTakenFor(ev.id);
-    if(booking.letszam > free){
+    if(ev.manualFull || booking.letszam > free){
       showFormError('Sajnos épp most telt be ez a kóstoló. Kérlek válassz másik alkalmat!');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Foglalás rögzítése';
@@ -2197,7 +2228,7 @@ function renderAdmin(){
     return `
     <tr>
       <td>${fmtDate(ev.date)}</td>
-      <td>${ev.title}</td>
+      <td>${ev.title}${ev.manualFull ? ' <span style="color:var(--mark-red); font-family:\'IBM Plex Mono\', monospace; font-size:0.7rem;">(kézi Betelt)</span>' : ''}</td>
       <td>${fmtPrice(ev.price)}</td>
       <td>${taken}/${ev.capacity}</td>
       <td>
@@ -2265,6 +2296,10 @@ function renderAdmin(){
       <input type="url" id="ev-image" placeholder="https://…" value="${editing && editing.image ? editing.image.replace(/"/g,'&quot;') : ''}">
       <label>Fizetési link (opcionális — pl. Barion fizetési link)</label>
       <input type="url" id="ev-paylink" placeholder="https://www.barion.com/…" value="${editing && editing.paymentLink ? editing.paymentLink.replace(/"/g,'&quot;') : ''}">
+      <label style="display:flex; align-items:center; gap:8px; margin-top:12px; cursor:pointer; text-transform:none; letter-spacing:0;">
+        <input type="checkbox" id="ev-manual-full" style="width:auto;" ${editing && editing.manualFull ? 'checked' : ''}>
+        Kézi "Betelt" jelölés (a kóstoló betelt-ként jelenik meg és nem foglalható, a tényleges létszámtól függetlenül — pl. ha telefonon/személyesen már mind lefoglalták)
+      </label>
       <div id="event-form-error" style="display:none; margin-top:14px; padding:10px 12px; background:rgba(140,47,57,0.15); border:1px solid var(--wine); border-radius:8px; font-size:0.85rem; color:var(--cream);"></div>
       <div class="row-actions">
         <button type="button" class="btn" id="save-event">${editing ? 'Módosítás mentése' : 'Esemény hozzáadása'}</button>
@@ -3007,6 +3042,7 @@ async function submitEventForm(){
   const description = document.getElementById('ev-desc').value.trim();
   const image = document.getElementById('ev-image').value.trim();
   const paymentLink = document.getElementById('ev-paylink').value.trim();
+  const manualFull = document.getElementById('ev-manual-full').checked;
 
   const errBox = document.getElementById('event-form-error');
   if(!date || !title || !price || !capacity){
@@ -3020,10 +3056,11 @@ async function submitEventForm(){
     const ev = EVENTS.find(x => x.id === editingEventId);
     ev.date = date; ev.title = title; ev.price = price; ev.capacity = capacity;
     ev.description = description; ev.image = image; ev.paymentLink = paymentLink;
+    ev.manualFull = manualFull;
     editingEventId = null;
   } else {
     const id = date + '-' + Math.random().toString(36).slice(2,6);
-    EVENTS.push({id, date, title, price, capacity, description, image, paymentLink});
+    EVENTS.push({id, date, title, price, capacity, description, image, paymentLink, manualFull});
   }
   EVENTS.sort((a,b)=> a.date.localeCompare(b.date));
   const ok = await saveEvents();
